@@ -3,11 +3,10 @@ function PricingCards({ onSelectPlan }) {
     <section className="max-w-7xl mx-auto px-6 md:px-8 mb-24 md:mb-32">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Essential Card (Previously Starter) */}
+        {/* Essential Card */}
         <div className="group bg-surface-container-low p-8 rounded-md flex flex-col border border-outline-variant/10 transition-all hover:bg-surface-container-lowest">
           <div className="mb-6">
             <span className="font-label text-xs uppercase tracking-[0.15em] text-on-surface-variant font-bold">Plan 01</span>
-            {/* CHANGED: Starter to Essential */}
             <h3 className="font-headline text-2xl font-bold mt-2">Essential</h3>
             <p className="text-tertiary font-medium mt-1">WhatsApp Booking</p>
           </div>
@@ -16,7 +15,10 @@ function PricingCards({ onSelectPlan }) {
               <span className="font-headline text-4xl font-black tracking-tighter">₹4,999</span>
               <span className="text-on-surface-variant text-sm mb-1">/month</span>
             </div>
-            <p className="text-on-surface-variant text-xs mt-2">Billed monthly.</p>
+            {/* ADDED: One-time fee disclaimer */}
+            <p className="text-on-surface-variant text-[10px] uppercase tracking-wider mt-2 font-bold opacity-70">
+              + ₹3,499 one-time installation
+            </p>
           </div>
           <div className="mb-8">
             <p className="text-on-surface-variant text-sm mb-6 leading-relaxed">Automate appointments. Eliminate manual work.</p>
@@ -30,7 +32,6 @@ function PricingCards({ onSelectPlan }) {
             </ul>
           </div>
           <div className="mt-auto">
-            {/* CHANGED: Passing 'Essential' to the modal */}
             <button 
               onClick={() => onSelectPlan('Essential')}
               className="w-full bg-primary text-on-primary py-4 rounded-sm font-bold tracking-wide uppercase text-xs hover:bg-primary-dim transition-colors group-hover:scale-[1.02]"
@@ -55,14 +56,16 @@ function PricingCards({ onSelectPlan }) {
               <span className="font-headline text-4xl font-black tracking-tighter">₹9,999</span>
               <span className="text-on-surface-variant text-sm mb-1">/month</span>
             </div>
-            <p className="text-on-surface-variant text-xs mt-2">Billed monthly.</p>
+            {/* ADDED: One-time fee disclaimer */}
+            <p className="text-tertiary text-[10px] uppercase tracking-wider mt-2 font-black">
+              + ₹4,999 one-time installation
+            </p>
           </div>
           <div className="mb-8">
             <p className="text-on-surface-variant text-sm mb-6 leading-relaxed">Never miss a patient — even on calls.</p>
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-sm text-on-surface font-semibold">
                 <span className="material-symbols-outlined text-tertiary text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
-                {/* CHANGED: Starter to Essential */}
                 Everything in Essential
               </li>
               {["AI-powered call assistant", "Handles incoming calls", "Books via voice", "Syncs to dashboard", "Reduces missed calls"].map((feature, i) => (
@@ -125,7 +128,6 @@ function PricingCards({ onSelectPlan }) {
         <h4 className="font-headline text-2xl md:text-3xl font-bold mb-4">Flexible Pricing</h4>
         <p className="text-on-surface-variant leading-relaxed text-sm md:text-base">
           Pricing depends on clinic size and customization. <br className="hidden sm:block"/>
-          {/* CHANGED: Starter to Essential */}
           Starting from <span className="text-tertiary font-bold">₹4,999/month</span> for Essential and <span className="text-tertiary font-bold">₹9,999/month</span> for Growth.
         </p>
       </div>
