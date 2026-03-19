@@ -1,15 +1,16 @@
 // src/main.jsx
-import { ViteSSG } from 'vite-ssg';
+// Change from 'vite-ssg-react' to 'vite-ssg-react/client'
+import { ViteSSG, RouterView } from 'vite-ssg-react/client';
 import App from './App';
-import { routes } from './routes';
+import { routes } from './routes'; // Ensure this path is correct!
 import './index.css';
 
-// ViteSSG handles the creation of the app and the router automatically
+// CRITICAL: You MUST have the 'export' keyword here
 export const createApp = ViteSSG(
   App,
   { routes },
   ({ app, router, isClient }) => {
-    // Scroll to top on route change
+    // Custom logic (optional)
     if (isClient) {
       router.afterEach(() => {
         window.scrollTo(0, 0);

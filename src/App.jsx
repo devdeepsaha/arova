@@ -1,5 +1,6 @@
 // src/App.jsx
-import { RouterView } from 'vite-ssg';
+// Change from 'vite-ssg-react' to 'vite-ssg-react/client'
+import { ViteSSG, RouterView } from 'vite-ssg-react/client';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import ScrollToTop from './components/layout/ScrollToTop';
