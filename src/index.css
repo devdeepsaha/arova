@@ -1,0 +1,168 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'AWPC Avant Guard';
+  src: url('/awpc-avant-guard-bold.woff2') format('woff2'),
+       url('/awpc-avant-guard-bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  /* ... keep all your existing colors here ... */
+  --color-surface-bright: #fcf9f8;
+  --color-surface-dim: #dbdad9;
+  --color-secondary-dim: #4a5462;
+  --color-primary: #171616;
+  --color-secondary: #56606e;
+  --color-on-surface-variant: #5f5f5f;
+  --color-on-error: #fff7f6;
+  --color-error-container: #fe8983;
+  --color-surface-container-highest: #e4e2e2;
+  --color-on-primary-fixed-variant: #5c5b5b;
+  --color-on-secondary-fixed: #36404d;
+  --color-surface-container-low: #f6f3f2;
+  --color-primary-fixed-dim: #d6d4d3;
+  --color-surface-container-high: #eae8e7;
+  --color-tertiary-dim: #065f46;
+  --color-on-error-container: #752121;
+  --color-surface-tint: #5f5e5e;
+  --color-on-secondary-container: #485260;
+  --color-on-primary-fixed: #403f3f;
+  --color-on-primary-container: #525151;
+  --color-on-primary: #faf7f6;
+  --color-on-tertiary-container: #11644b;
+  --color-error: #9f403d;
+  --color-outline: #7b7a7a;
+  --color-surface: #fcf9f8;
+  --color-inverse-surface: #0e0e0e;
+  --color-secondary-container: #d9e3f4;
+  --color-outline-variant: #b3b2b1;
+  --color-surface-container-lowest: #ffffff;
+  --color-error-dim: #4e0309;
+  --color-inverse-primary: #ffffff;
+  --color-on-tertiary-fixed-variant: #216f55;
+  --color-secondary-fixed: #d9e3f4;
+  --color-tertiary-fixed: #b1fedc;
+  --color-on-secondary-fixed-variant: #525c6a;
+  --color-primary-container: #e5e2e1;
+  --color-tertiary: #1c6b51;
+  --color-primary-fixed: #e5e2e1;
+  --color-on-secondary: #f7f9ff;
+  --color-primary-dim: #535252;
+  --color-on-background: #323232;
+  --color-surface-variant: #e4e2e2;
+  --color-background: #fcf9f8;
+  --color-inverse-on-surface: #9e9c9c;
+  --color-tertiary-fixed-dim: #a3efce;
+  --color-secondary-fixed-dim: #cbd5e6;
+  --color-on-tertiary: #e5fff1;
+  --color-tertiary-container: #b1fedc;
+  --color-surface-container: #f0eded;
+  --color-on-tertiary-fixed: #00513b;
+  --color-on-surface: #323232;
+
+  /* NEW: Added accent-blue from the Web Dev HTML */
+  --color-accent-blue: #062c9e;
+  --color-accent-lightblue: #017cff;
+
+  --font-headline: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-label: "Inter", sans-serif;
+  --font-avant-garde: "AWPC Avant Guard", sans-serif;
+
+  --radius-DEFAULT: 0.125rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.5rem;
+  --radius-full: 0.75rem;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+.blueprint-grid {
+  background-image: linear-gradient(to right, rgba(179, 178, 177, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(179, 178, 177, 0.1) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.blueprint-dots {
+  background-image: radial-gradient(circle, #b3b2b1 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.05;
+}
+
+.cross-grid-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 60 L60 0 M0 0 L60 60' stroke='rgba(179, 178, 177, 0.4)' stroke-width='1' fill='none' /%3E%3C/svg%3E");
+  background-size: 60px 60px;
+  background-repeat: repeat;
+  opacity: 0.3; 
+}
+
+.blueprint-bg {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 60 L60 0 M0 0 L60 60' stroke='rgba(179, 178, 177, 0.1)' stroke-width='1' fill='none' /%3E%3C/svg%3E");
+  background-size: 60px 60px;
+  background-repeat: repeat;
+}
+
+/* NEW: Image-based grid specific to the Web Dev page */
+.blueprint-grid-image {
+  background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCOT-01QDTE_cngXfbxph1tdOseI9ZQV9N-rsK0DO1PlpdiwsarzzdQMynUHLZVOhLO0_b61HvAFTu9UmJZnJ99XtZSYRfBAU0h0POPY225bjzdjSzLwo6Zxkx1Cl7iWwU7Q9LCFLQkcGgaG413RsomurBjqLq12nmeExlQfT--qhgfsW0unWBavIoCnAt9WFEJ-C5T6Ioi56h59-d55qbBITG80AiD29AyFlFaUwi7zHObBOKrTylkZnTTAiV3nB1IvIf-xFgrCrSf');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+/* NEW: Dotted blueprint background for Pricing page */
+.blueprint-dot-bg {
+  background-image: radial-gradient(circle at 1px 1px, rgba(179, 178, 177, 0.15) 1px, transparent 0);
+  background-size: 40px 40px;
+}
+
+/* NEW: Text stroke utility for the impact stats */
+/* NEW: Fixed text stroke to use an explicit color variable instead of currentColor */
+.text-stroke {
+  -webkit-text-stroke-width: 1.5px; /* Made it slightly thicker so it pops more */
+  -webkit-text-stroke-color: var(--color-on-surface); /* Uses your dark text color */
+  color: transparent;
+}
+
+/* NEW: Backgrounds and utilities for the About page */
+.onyx-grid-bg {
+  background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuANgGNqGEDb6foWc_Qk7uyUKFon0VUvCunpGoJP0C6Q4hnSw-p5oEujQ9SitPV3kFpU-QTamw9rurUgz3kEwlz7hcFz0Mbb_35g1NKVT0PNgatuLfjVvLykvmpLcK6GwgKBRRWZ2dcMozfXhP9czhWh4CV9sYOpIdRYEZS4bObqqRP5ougzMRCAq7eB0eBIKK2n1craB2zLcOr3C1NAl_EqXDgVJw8FEahtCQgxLCOQPRpBBUjx4YUouhqF9OdPD_uMORRunkLhTdHh');
+  background-repeat: repeat;
+  background-size: 400px;
+  opacity: 0.04;
+}
+
+.glass-nav {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.blueprint-border {
+  border-bottom: 1px solid rgba(179, 178, 177, 0.15);
+}
+
+/* NEW: Toast slide-in animation */
+@keyframes slideInUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scrollLeft {
+  0% { transform: translateX(0); }
+  /* We scroll by -50% because we are going to duplicate the list of items */
+  100% { transform: translateX(-50%); } 
+}
+
+.animate-scroll-left {
+  animation: scrollLeft 30s linear infinite;
+}
+
+/* Optional: Pause the scrolling when the user hovers over it */
+.animate-scroll-left:hover {
+  animation-play-state: paused;
+}
