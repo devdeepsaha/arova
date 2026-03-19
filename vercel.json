@@ -1,4 +1,10 @@
 {
   "cleanUrls": true,
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }

@@ -1,20 +1,30 @@
-// src/main.jsx
-// Change from 'vite-ssg-react' to 'vite-ssg-react/client'
-import { ViteSSG, RouterView } from 'vite-ssg-react/client';
-import App from './App';
-import { routes } from './routes'; // Ensure this path is correct!
-import './index.css';
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import App from './App'
+import Home from './pages/Home'
+import Healthcare from './pages/Healthcare'
+import WebDevelopment from './pages/WebDevelopment'
+import About from './pages/About'
+import Pricing from './pages/Pricing'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfService from './pages/TermsOfService'
+import './index.css'
 
-// CRITICAL: You MUST have the 'export' keyword here
-export const createApp = ViteSSG(
-  App,
-  { routes },
-  ({ app, router, isClient }) => {
-    // Custom logic (optional)
-    if (isClient) {
-      router.afterEach(() => {
-        window.scrollTo(0, 0);
-      });
-    }
-  }
-);
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />}>
+          <Route index element={<Home />} />
+          <Route path="healthcare" element={<Healthcare />} />
+          <Route path="web-development" element={<WebDevelopment />} />
+          <Route path="about" element={<About />} />
+          <Route path="pricing" element={<Pricing />} />
+          <Route path="privacy" element={<PrivacyPolicy />} />
+          <Route path="terms" element={<TermsOfService />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  </React.StrictMode>
+)
