@@ -54,7 +54,8 @@ function HomeFlagship() {
             </div>
 
             {/* Visual Right (Mockup) */}
-            <div className="bg-surface-container-low w-full h-[650px] lg:aspect-square lg:h-auto border border-outline-variant/20 p-2 md:p-5 flex flex-col relative overflow-hidden shadow-inner rounded-md">
+            {/* CHANGED: Switched to min-h and max-h to prevent breaking in square desktop modes */}
+            <div className="bg-surface-container-low w-full h-[600px] lg:h-[650px] border border-outline-variant/20 p-2 md:p-5 flex flex-col relative overflow-hidden shadow-inner rounded-md">
               
               {/* Header */}
               <div className="flex justify-between items-center pb-2.5 border-b border-outline-variant/20 mb-2.5 shrink-0 px-2">
@@ -70,109 +71,78 @@ function HomeFlagship() {
               </div>
               
               {/* Interface Container */}
-              <div className="flex-1 flex bg-surface-bright border border-outline-variant/10 rounded-md overflow-hidden shadow-sm h-full relative">
+              <div className="flex-1 flex bg-surface-bright border border-outline-variant/10 rounded-md overflow-hidden shadow-sm relative min-h-0">
                 
-                {/* SIDEBAR - Responsive Width */}
-                <div className="w-[70px] sm:w-[25%] border-r border-outline-variant/10 bg-surface-bright p-2 sm:p-4 flex flex-col shrink-0">
+                {/* SIDEBAR */}
+                <div className="w-[60px] sm:w-[25%] border-r border-outline-variant/10 bg-surface-bright p-2 sm:p-4 flex flex-col shrink-0 h-full">
                   <div className="flex items-center gap-2 mb-6 sm:mb-8 overflow-hidden">
-                    <div className="bg-on-surface text-surface rounded-md w-6 h-6 flex items-center justify-center font-bold text-xs shrink-0">+</div>
-                    <span className="hidden sm:inline font-bold text-[10px] text-on-surface uppercase tracking-tight truncate">Arova Health</span>
+                    <div className="bg-on-surface text-surface rounded-md w-5 h-5 flex items-center justify-center font-bold text-xs shrink-0">+</div>
+                    <span className="hidden sm:inline font-bold text-[9px] text-on-surface uppercase tracking-tighter truncate">Arova Health</span>
                   </div>
                   
-                  <nav className="space-y-1.5">
-                    <div onClick={() => setActiveTab('overview')} className={`flex items-center justify-center sm:justify-start gap-2 p-2 rounded cursor-pointer ${activeTab === 'overview' ? 'bg-surface-container-high text-on-surface' : 'text-on-surface-variant'}`}>
+                  <nav className="space-y-1">
+                    <div onClick={() => setActiveTab('overview')} className={`flex items-center justify-center sm:justify-start gap-2 p-2 rounded cursor-pointer transition-colors ${activeTab === 'overview' ? 'bg-surface-container-high text-on-surface' : 'text-on-surface-variant hover:bg-surface-container-low'}`}>
                       <span className="material-symbols-outlined text-sm">grid_view</span> 
-                      <span className="hidden sm:inline text-[10px] font-bold">Overview</span>
+                      <span className="hidden sm:inline text-[9px] font-bold">Overview</span>
                     </div>
-                    <div onClick={() => setActiveTab('schedules')} className={`flex items-center justify-center sm:justify-start gap-2 p-2 rounded cursor-pointer ${activeTab === 'schedules' ? 'bg-surface-container-high text-on-surface' : 'text-on-surface-variant'}`}>
+                    <div onClick={() => setActiveTab('schedules')} className={`flex items-center justify-center sm:justify-start gap-2 p-2 rounded cursor-pointer transition-colors ${activeTab === 'schedules' ? 'bg-surface-container-high text-on-surface' : 'text-on-surface-variant hover:bg-surface-container-low'}`}>
                       <span className="material-symbols-outlined text-sm">schedule</span> 
-                      <span className="hidden sm:inline text-[10px] font-bold">Schedules</span>
-                    </div>
-                    <div className="flex items-center justify-center sm:justify-start gap-2 p-2 text-on-surface-variant/40">
-                      <span className="material-symbols-outlined text-sm">person</span> 
-                      <span className="hidden sm:inline text-[10px] font-bold">Patients</span>
+                      <span className="hidden sm:inline text-[9px] font-bold">Schedules</span>
                     </div>
                   </nav>
 
                   <div className="mt-auto pt-4 border-t border-outline-variant/10 flex items-center justify-center sm:justify-start gap-2">
-                     <div className="w-6 h-6 rounded-full bg-on-surface text-surface flex items-center justify-center text-[10px] font-bold">D</div>
-                     <div className="hidden sm:block leading-tight">
-                        <p className="text-[9px] font-bold text-on-surface">Dr. Dev</p>
-                        <p className="text-[7px] text-on-surface-variant">Admin</p>
+                     <div className="w-5 h-5 rounded-full bg-on-surface text-surface flex items-center justify-center text-[8px] font-bold">D</div>
+                     <div className="hidden sm:block leading-tight truncate">
+                        <p className="text-[8px] font-bold text-on-surface">Dr. Dev</p>
+                        <p className="text-[6px] text-on-surface-variant">Admin</p>
                      </div>
                   </div>
                 </div>
 
-                {/* MAIN CONTENT AREA */}
-                <div className="flex-1 bg-surface/40 p-3 sm:p-6 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
+                {/* MAIN CONTENT AREA - Added relative and overflow-y-auto to allow scrolling inside the mockup */}
+                <div className="flex-1 bg-surface/30 p-3 sm:p-5 overflow-y-auto custom-scrollbar relative h-full">
                   
                   {activeTab === 'overview' && (
-                    <div className="space-y-5 animate-[fadeIn_0.4s_ease-out]">
-                      <div>
-                        <h3 className="font-bold text-sm sm:text-base text-on-surface">Good evening, Dr. Dev</h3>
-                        <p className="text-[9px] sm:text-[10px] text-on-surface-variant">Thursday, March 19, 2026</p>
+                    <div className="space-y-4 animate-[fadeIn_0.4s_ease-out]">
+                      <div className="flex justify-between items-end">
+                        <div>
+                          <h3 className="font-bold text-xs sm:text-sm text-on-surface">Good evening, Dr. Dev</h3>
+                          <p className="text-[8px] sm:text-[9px] text-on-surface-variant">March 19, 2026</p>
+                        </div>
                       </div>
 
-                      {/* Stats Grid */}
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 gap-2">
                         {[
-                          { val: "12", label: "Today's Appts", sub: "3 new via WhatsApp" },
-                          { val: "08", label: "Available Slots", sub: "Next at 4:30 PM" },
-                          { val: "142", label: "Total Patients", sub: "+12 this week" },
-                          { val: "890", label: "Total Appts", sub: "98% satisfaction" }
+                          { val: "12", label: "Appts", color: "text-on-surface" },
+                          { val: "08", label: "Slots", color: "text-tertiary" },
+                          { val: "142", label: "Patients", color: "text-on-surface" },
+                          { val: "890", label: "Total", color: "text-on-surface" }
                         ].map((stat, i) => (
-                          <div key={i} className="bg-surface-bright p-3 border border-outline-variant/10 rounded-md shadow-sm">
-                            <div className="font-black text-lg text-on-surface">{stat.val}</div>
-                            <div className="text-[8px] font-bold text-on-surface leading-tight uppercase mb-0.5">{stat.label}</div>
-                            <div className="text-[7px] text-on-surface-variant truncate">{stat.sub}</div>
+                          <div key={i} className="bg-surface-bright p-2.5 border border-outline-variant/10 rounded shadow-sm">
+                            <div className={`font-black text-base ${stat.color}`}>{stat.val}</div>
+                            <div className="text-[7px] font-bold text-on-surface-variant uppercase tracking-widest">{stat.label}</div>
                           </div>
                         ))}
                       </div>
 
-                      {/* Today's Schedule List */}
-                      <div className="bg-surface-bright border border-outline-variant/10 rounded-md p-4 shadow-sm">
-                        <div className="flex justify-between items-center mb-4">
-                           <span className="font-bold text-[10px] uppercase tracking-widest text-on-surface-variant">Today's Schedule</span>
-                           <span className="text-[8px] bg-accent-blue/10 text-accent-blue px-2 py-0.5 rounded-full font-bold">Active Now</span>
+                      <div className="bg-surface-bright border border-outline-variant/10 rounded p-3 shadow-sm">
+                        <div className="flex justify-between items-center mb-3">
+                           <span className="font-bold text-[8px] uppercase tracking-[0.2em] text-on-surface-variant">Live Queue</span>
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                            {[
-                             { name: "Rahul Sharma", time: "10:30 AM", status: "Confirmed", task: "General Checkup" },
-                             { name: "Aditi Rao", time: "11:15 AM", status: "Waiting", task: "Dental Cleaning" }
+                             { name: "Rahul S.", time: "10:30 AM", status: "In Room" },
+                             { name: "Aditi R.", time: "11:15 AM", status: "Waiting" }
                            ].map((appt, i) => (
-                             <div key={i} className="flex items-center justify-between p-2.5 bg-surface-container-low rounded border border-outline-variant/5">
-                                <div className="flex items-center gap-3">
-                                   <span className="text-[8px] font-bold text-accent-blue">{appt.time}</span>
-                                   <div>
-                                      <p className="text-[9px] font-bold text-on-surface">{appt.name}</p>
-                                      <p className="text-[7px] text-on-surface-variant">{appt.task}</p>
-                                   </div>
+                             <div key={i} className="flex items-center justify-between p-2 bg-surface-container-low rounded border border-outline-variant/5">
+                                <div className="flex items-center gap-2">
+                                   <div className="w-1 h-1 rounded-full bg-tertiary"></div>
+                                   <p className="text-[8px] font-bold text-on-surface">{appt.name}</p>
                                 </div>
-                                <span className={`text-[7px] font-bold ${appt.status === 'Confirmed' ? 'text-tertiary' : 'text-error animate-pulse'}`}>{appt.status}</span>
+                                <span className="text-[7px] font-bold text-accent-blue">{appt.time}</span>
                              </div>
                            ))}
-                        </div>
-                      </div>
-
-                      {/* Appointment Status Progress */}
-                      <div className="bg-surface-bright border border-outline-variant/10 rounded-md p-4 shadow-sm">
-                        <span className="font-bold text-[10px] uppercase tracking-widest text-on-surface-variant block mb-4">Live Status</span>
-                        <div className="space-y-3">
-                          {[
-                            { label: 'Confirmed', count: 8, color: 'bg-tertiary', width: 'w-[70%]' },
-                            { label: 'Pending', count: 3, color: 'bg-accent-blue', width: 'w-[30%]' },
-                            { label: 'Completed', count: 12, color: 'bg-on-surface', width: 'w-[90%]' }
-                          ].map((item) => (
-                            <div key={item.label} className="space-y-1">
-                              <div className="flex justify-between text-[8px] font-bold">
-                                <span className="text-on-surface-variant">{item.label}</span>
-                                <span>{item.count}</span>
-                              </div>
-                              <div className="h-1 bg-surface-container-high rounded-full overflow-hidden">
-                                <div className={`${item.color} ${item.width} h-full rounded-full`}></div>
-                              </div>
-                            </div>
-                          ))}
                         </div>
                       </div>
                     </div>
@@ -180,47 +150,39 @@ function HomeFlagship() {
 
                   {activeTab === 'schedules' && (
                     <div className="space-y-4 animate-[fadeIn_0.4s_ease-out]">
-                      {/* Slot Generator Card */}
-                      <div className="bg-surface-bright border border-outline-variant/10 rounded-md p-4 shadow-sm space-y-4">
+                      <div className="bg-surface-bright border border-outline-variant/10 rounded p-3 shadow-sm space-y-3">
                         <div className="flex justify-between items-center">
-                          <h4 className="font-bold text-[10px] uppercase tracking-widest text-on-surface-variant">Slot Generator</h4>
-                          <span className="material-symbols-outlined text-xs">settings_suggest</span>
+                          <h4 className="font-bold text-[8px] uppercase tracking-widest text-on-surface-variant">Slot Generator</h4>
+                          <span className="material-symbols-outlined text-xs text-on-surface-variant">auto_awesome</span>
                         </div>
                         
-                        <div className="space-y-3">
-                          <div className="space-y-1">
-                             <span className="text-[7px] font-bold text-on-surface-variant uppercase ml-1">Date Range</span>
-                             <div className="h-9 bg-surface-container-low rounded border border-outline-variant/10 flex items-center px-3 justify-between">
-                                <span className="text-[9px] text-on-surface">19 Mar - 19 Jun 2026</span>
-                                <span className="material-symbols-outlined text-sm text-on-surface-variant">calendar_today</span>
-                             </div>
+                        <div className="space-y-2">
+                          <div className="h-8 bg-surface-container-low rounded border border-outline-variant/10 flex items-center px-2 justify-between">
+                            <span className="text-[8px] text-on-surface">19 Mar - 19 Jun</span>
+                            <span className="material-symbols-outlined text-xs text-on-surface-variant">calendar_today</span>
                           </div>
-                          <div className="space-y-1">
-                             <span className="text-[7px] font-bold text-on-surface-variant uppercase ml-1">Active Hours</span>
-                             <div className="h-9 bg-surface-container-low rounded border border-outline-variant/10 flex items-center px-3 justify-between">
-                                <span className="text-[9px] text-on-surface">09:00 AM - 06:00 PM</span>
-                                <span className="material-symbols-outlined text-sm text-on-surface-variant">schedule</span>
-                             </div>
+                          <div className="h-8 bg-surface-container-low rounded border border-outline-variant/10 flex items-center px-2 justify-between">
+                            <span className="text-[8px] text-on-surface">09:00 AM - 06:00 PM</span>
+                            <span className="material-symbols-outlined text-xs text-on-surface-variant">schedule</span>
                           </div>
-                          <button className="w-full bg-on-surface text-surface py-2.5 rounded font-bold text-[9px] uppercase tracking-widest hover:bg-on-surface/90 transition-colors">Populate Schedule</button>
+                          <button className="w-full bg-on-surface text-surface py-2 rounded font-bold text-[8px] uppercase tracking-widest">Populate</button>
                         </div>
                       </div>
 
-                      {/* Calendar Card */}
-                      <div className="bg-surface-bright border border-outline-variant/10 rounded-md p-4 shadow-sm">
-                         <div className="flex justify-between items-center mb-4">
-                            <span className="font-bold text-[10px] text-on-surface">MARCH 2026</span>
-                            <div className="flex gap-2">
-                               <span className="material-symbols-outlined text-sm border rounded p-0.5 cursor-pointer">chevron_left</span>
-                               <span className="material-symbols-outlined text-sm border rounded p-0.5 cursor-pointer">chevron_right</span>
-                            </div>
-                         </div>
-                         <div className="grid grid-cols-7 gap-1 text-[8px] text-center font-black text-on-surface-variant mb-2">
-                           {['MON','TUE','WED','THU','FRI','SAT','SUN'].map(d => <div key={d}>{d}</div>)}
+                      <div className="bg-surface-bright border border-outline-variant/10 rounded p-3 shadow-sm">
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="font-bold text-[9px]">March 2026</span>
+                          <div className="flex gap-1">
+                            <span className="material-symbols-outlined text-xs border rounded cursor-pointer">chevron_left</span>
+                            <span className="material-symbols-outlined text-xs border rounded cursor-pointer">chevron_right</span>
+                          </div>
+                        </div>
+                         <div className="grid grid-cols-7 gap-1 text-[6px] text-center font-bold text-on-surface-variant mb-1">
+                           {['M','T','W','T','F','S','S'].map(d => <div key={d}>{d}</div>)}
                          </div>
                          <div className="grid grid-cols-7 gap-1">
                            {Array.from({length: 31}).map((_, i) => (
-                             <div key={i} className={`h-8 flex items-center justify-center text-[9px] border-t border-outline-variant/5 ${i+1 === 19 ? 'bg-accent-blue text-white rounded font-bold' : 'text-on-surface-variant hover:bg-surface-container-low cursor-pointer transition-colors'}`}>
+                             <div key={i} className={`h-6 flex items-center justify-center text-[8px] border-t border-outline-variant/5 ${i+1 === 19 ? 'bg-accent-blue text-white rounded-full font-bold' : 'text-on-surface-variant'}`}>
                                {i+1}
                              </div>
                            ))}
