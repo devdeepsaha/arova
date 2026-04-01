@@ -17,12 +17,13 @@ function Navbar() {
   };
 
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Health Care', path: '/healthcare' },
-    { name: 'Web Development', path: '/web-development' },
-    { name: 'Pricing', path: '/pricing' },
-    { name: 'About', path: '/about' },
-  ];
+  { name: 'Home', path: '/' },
+  { name: 'Health Care', path: '/healthcare' },
+  { name: 'Web Development', path: '/web-development' },
+  { name: 'Pricing', path: '/pricing' },
+  { name: 'Careers', path: '/careers' },
+  { name: 'About', path: '/about' },
+];
 
   return (
     <>
