@@ -7,25 +7,25 @@ const Careers = () => {
     {
       title: "HR Intern",
       type: "Remote",
-      duration: "3-6 Months",
+      duration: "1 Month",
       description: "Shape the future of our workforce. Assist in talent acquisition, streamline onboarding workflows, and cultivate a high-performance engineering culture."
     },
     {
       title: "Sales Intern",
       type: "Remote / Field",
-      duration: "3-6 Months",
+      duration: "1 Month",
       description: "Drive growth for our B2B SaaS products like Arova. Engage with clinics and enterprise clients to expand our market presence and revenue streams."
     },
     {
       title: "Automation Developer Intern",
       type: "Remote",
-      duration: "3-6 Months",
+      duration: "1 Month",
       description: "Build intelligent workflows and robust scripts. Focus on system automation, data handling, and building custom bot integrations to scale our operations."
     },
     {
       title: "Social Media Intern",
       type: "Remote",
-      duration: "3 Months",
+      duration: "1 Month",
       description: "Architect our digital narrative. Manage brand presence, design engaging content strategies, and connect with the broader tech community."
     }
   ];
