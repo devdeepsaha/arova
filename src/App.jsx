@@ -1,19 +1,24 @@
-import { Outlet } from 'react-router-dom'
-import Navbar from './components/layout/Navbar'
-import Footer from './components/layout/Footer'
-import ScrollToTop from './components/layout/ScrollToTop'
+import { Outlet, useLocation } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 
 function App() {
+  const location = useLocation();
+  
+  // Define paths where the global Navbar/Footer should be HIDDEN
+  const isInternalPage = location.pathname.includes('secretpanel');
+
   return (
-    <div className="flex flex-col min-h-screen">
-      <ScrollToTop />
-      <Navbar />
+    <div className="flex flex-col min-h-screen bg-surface">
+      {/* Only show Navbar if NOT on the secret panel */}
+      {!isInternalPage && <Navbar />}
+      
       <main className="flex-grow">
         <Outlet />
       </main>
-      <Footer />
-    </div>
-  )
-}
 
-export default App
+      {/* Only show Footer if NOT on the secret panel */}
+      {!isInternalPage && <Footer />}
+    </div>
+  );
+}
