@@ -11,10 +11,8 @@ const SecretPanel = () => {
   const [password, setPassword] = useState('');
   const [msg, setMsg] = useState({ text: '', type: '' });
   
-  // RECENTLY CHANGED: Added state to control the mobile sidebar menu
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  // --- Skill System State ---
   const [customSkill, setCustomSkill] = useState('');
   const PREDEFINED_SKILLS = [
     "Fast Builder", "Problem Solver", "Strong Communicator", 
@@ -22,19 +20,22 @@ const SecretPanel = () => {
     "Attention to Detail", "Creative Thinker", "High Ownership", "Quick Learner"
   ];
 
-  // --- Form State ---
+  // Form State - Notice 'performance_badge' starts empty, and 'certificate_url' is added
   const [formData, setFormData] = useState({
     full_name: '', 
     role: 'Software Engineering Intern', 
     duration: '3 Months',
-    performance_badge: 'Top 10% Performer', 
+    performance_badge: '', 
     avatar_url: '', 
+    certificate_url: '',
     hub_location: 'Kolkata, India',
     summary: '', 
     skills: [], 
     status: 'Active'
   });
-  const [uploading, setUploading] = useState(false);
+  
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingCert, setUploadingCert] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -45,16 +46,11 @@ const SecretPanel = () => {
 
   const fetchInterns = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('interns')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
+    const { data, error } = await supabase.from('interns').select('*').order('created_at', { ascending: false });
     if (!error) setInterns(data);
     setLoading(false);
   };
 
-  // --- AUTH HANDLERS ---
   const handleLogin = async (e) => {
     e.preventDefault();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -66,12 +62,11 @@ const SecretPanel = () => {
     }
   };
 
-  // --- IMAGE UPLOAD & RESIZE LOGIC ---
-  const handleImageUpload = async (e) => {
+  // --- AVATAR UPLOAD (With Resize) ---
+  const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    setUploading(true);
+    setUploadingAvatar(true);
     try {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -84,40 +79,58 @@ const SecretPanel = () => {
           const scaleSize = MAX_WIDTH / img.width;
           canvas.width = MAX_WIDTH;
           canvas.height = img.height * scaleSize;
-
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
           canvas.toBlob(async (blob) => {
-            const fileName = `arova-auth-${Date.now()}.jpg`;
-            const { data, error } = await supabase.storage
-              .from('intern-avatars')
-              .upload(fileName, blob);
-
+            const fileName = `avatar-${Date.now()}.jpg`;
+            const { error } = await supabase.storage.from('intern-avatars').upload(fileName, blob);
             if (error) throw error;
-
-            const { data: urlData } = supabase.storage
-              .from('intern-avatars')
-              .getPublicUrl(fileName);
-
+            const { data: urlData } = supabase.storage.from('intern-avatars').getPublicUrl(fileName);
             setFormData({ ...formData, avatar_url: urlData.publicUrl });
-            setMsg({ text: 'Biometric photo synced successfully', type: 'success' });
-            setUploading(false);
+            setMsg({ text: 'Avatar synced successfully', type: 'success' });
+            setUploadingAvatar(false);
           }, 'image/jpeg', 0.8);
         };
       };
     } catch (err) {
-      setMsg({ text: 'Upload failed: ' + err.message, type: 'error' });
-      setUploading(false);
+      setMsg({ text: 'Avatar upload failed: ' + err.message, type: 'error' });
+      setUploadingAvatar(false);
     }
   };
 
-  // --- SKILL TAG SYSTEM LOGIC ---
+  // --- CERTIFICATE UPLOAD (Direct PDF/Image Upload) ---
+  const handleCertificateUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingCert(true);
+    try {
+      // We don't resize certificates, we upload them directly (could be PDF)
+      const fileExt = file.name.split('.').pop();
+      const fileName = `cert-${Date.now()}.${fileExt}`;
+      
+      const { error } = await supabase.storage
+        .from('intern-certificates')
+        .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+      if (error) throw error;
+
+      const { data: urlData } = supabase.storage
+        .from('intern-certificates')
+        .getPublicUrl(fileName);
+
+      setFormData({ ...formData, certificate_url: urlData.publicUrl });
+      setMsg({ text: 'Official Certificate document attached', type: 'success' });
+    } catch (err) {
+      setMsg({ text: 'Certificate upload failed: ' + err.message, type: 'error' });
+    } finally {
+      setUploadingCert(false);
+    }
+  };
+
   const toggleSkill = (skill) => {
     const current = Array.isArray(formData.skills) ? formData.skills : [];
-    const next = current.includes(skill)
-      ? current.filter(s => s !== skill)
-      : current.length < 10 ? [...current, skill] : current;
+    const next = current.includes(skill) ? current.filter(s => s !== skill) : current.length < 10 ? [...current, skill] : current;
     setFormData({ ...formData, skills: next });
   };
 
@@ -132,7 +145,6 @@ const SecretPanel = () => {
     }
   };
 
-  // --- DB MUTATION LOGIC ---
   const handleIssue = async (e) => {
     e.preventDefault();
     setMsg({ text: 'Deploying to Registry...', type: 'info' });
@@ -140,7 +152,7 @@ const SecretPanel = () => {
     if (error) setMsg({ text: error.message, type: 'error' });
     else {
       setMsg({ text: 'Identity Certificate Deployed Successfully', type: 'success' });
-      setFormData({ full_name: '', role: 'Software Engineering Intern', duration: '3 Months', performance_badge: 'Top 10% Performer', avatar_url: '', hub_location: 'Kolkata, India', summary: '', skills: [], status: 'Active' });
+      setFormData({ full_name: '', role: 'Software Engineering Intern', duration: '3 Months', performance_badge: '', avatar_url: '', certificate_url: '', hub_location: 'Kolkata, India', summary: '', skills: [], status: 'Active' });
       fetchInterns();
       setActiveTab('overview');
     }
@@ -159,11 +171,7 @@ const SecretPanel = () => {
     if (!error) setInterns(interns.filter(i => i.id !== id));
   };
 
-  // --- DATA AGGREGATION ---
-  const filteredInterns = interns.filter(i => 
-    i.full_name.toLowerCase().includes(search.toLowerCase()) || 
-    (i.verification_id && i.verification_id.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filteredInterns = interns.filter(i => i.full_name.toLowerCase().includes(search.toLowerCase()) || (i.verification_id && i.verification_id.toLowerCase().includes(search.toLowerCase())));
 
   const stats = {
     total: interns.length,
@@ -172,7 +180,6 @@ const SecretPanel = () => {
     active: interns.filter(i => i.status === 'Active').length
   };
 
-  // --- LOGIN VIEW ---
   if (!session) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-surface blueprint-grid px-4">
@@ -195,39 +202,21 @@ const SecretPanel = () => {
 
   return (
     <div className="bg-surface text-on-surface min-h-screen font-body selection:bg-emerald-100 selection:text-emerald-900 overflow-x-hidden">
-      
-      {/* RECENTLY CHANGED: Mobile Header for triggering sidebar */}
       <div className="md:hidden fixed top-0 left-0 w-full bg-surface/90 backdrop-blur-xl border-b border-outline-variant/10 z-40 px-6 py-4 flex justify-between items-center shadow-sm">
         <h2 className="uppercase tracking-[0.2em] text-[12px] font-black text-[#5f5e5e]">Arova Admin</h2>
-        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="material-symbols-outlined text-primary text-2xl">
-          {isMobileMenuOpen ? 'close' : 'menu'}
-        </button>
+        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="material-symbols-outlined text-primary text-2xl">{isMobileMenuOpen ? 'close' : 'menu'}</button>
       </div>
 
-      {/* RECENTLY CHANGED: Mobile Overlay Background */}
-      {isMobileMenuOpen && (
-        <div 
-          className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity"
-          onClick={() => setIsMobileMenuOpen(false)}
-        ></div>
-      )}
+      {isMobileMenuOpen && <div className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity" onClick={() => setIsMobileMenuOpen(false)}></div>}
 
-      {/* RECENTLY CHANGED: Sidebar Navigation (Updated with responsive transform classes) */}
       <aside className={`fixed left-0 top-0 h-screen w-64 border-r border-[#b3b2b1]/15 bg-[#fcf9f8]/95 backdrop-blur-2xl flex flex-col p-8 z-50 transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         <div className="mt-8 md:mt-12 mb-12">
           <h2 className="uppercase tracking-[0.3em] text-[10px] font-black text-[#5f5e5e]">Arova Systems</h2>
           <p className="text-[10px] text-on-surface-variant/60 font-bold uppercase mt-1">Identity Control</p>
         </div>
         <nav className="flex flex-col gap-2">
-          {[
-            { id: 'overview', icon: 'dashboard', label: 'Identity Matrix' },
-            { id: 'issue', icon: 'verified_user', label: 'Certificate Issue' }
-          ].map(item => (
-            <button 
-              key={item.id} 
-              onClick={() => { setActiveTab(item.id); setIsMobileMenuOpen(false); }} 
-              className={`flex items-center gap-4 px-4 py-3 rounded-sm transition-all duration-300 ${activeTab === item.id ? 'bg-[#f6f3f2] text-emerald-800 font-black border-l-2 border-emerald-700' : 'text-[#5f5e5e] opacity-60 hover:opacity-100 hover:bg-stone-50'}`}
-            >
+          {[ { id: 'overview', icon: 'dashboard', label: 'Identity Matrix' }, { id: 'issue', icon: 'verified_user', label: 'Certificate Issue' } ].map(item => (
+            <button key={item.id} onClick={() => { setActiveTab(item.id); setIsMobileMenuOpen(false); }} className={`flex items-center gap-4 px-4 py-3 rounded-sm transition-all duration-300 ${activeTab === item.id ? 'bg-[#f6f3f2] text-emerald-800 font-black border-l-2 border-emerald-700' : 'text-[#5f5e5e] opacity-60 hover:opacity-100 hover:bg-stone-50'}`}>
               <span className="material-symbols-outlined text-sm">{item.icon}</span>
               <span className="uppercase tracking-widest text-[10px] font-bold">{item.label}</span>
             </button>
@@ -237,10 +226,8 @@ const SecretPanel = () => {
         <button onClick={() => supabase.auth.signOut().then(() => window.location.reload())} className="text-[10px] font-black uppercase text-red-500 text-left px-4">Terminate Session</button>
       </aside>
 
-      {/* RECENTLY CHANGED: Main Content Area (Adjusted padding for mobile vs desktop) */}
-      <main className="md:ml-64 pt-24 md:pt-24 px-4 md:px-12 pb-12 min-h-screen blueprint-grid w-full">
+      <main className="md:ml-64 pt-24 md:pt-24 px-4 md:px-12 pb-12 min-h-screen blueprint-grid">
         <header className="mb-8 md:mb-12">
-          {/* RECENTLY CHANGED: Responsive text sizing for the header */}
           <h1 className="text-4xl md:text-6xl font-headline font-bold tracking-tighter text-primary uppercase leading-none mt-4 md:mt-0">Secret Panel</h1>
           <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mt-4">
              <p className="text-on-surface-variant/80 font-bold tracking-[0.1em] md:tracking-[0.2em] text-[9px] md:text-[10px] uppercase break-all">Administrative Node: {session.user.email}</p>
@@ -249,15 +236,9 @@ const SecretPanel = () => {
         </header>
 
         {activeTab === 'overview' && (
-          <div className="animate-in fade-in duration-1000 w-full max-w-[100vw]">
-            {/* Stats Bento Grid */}
+          <div className="animate-in fade-in duration-1000 w-full">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
-              {[
-                { l: 'Total', v: stats.total, c: 'text-primary' },
-                { l: 'DEV', v: stats.devs, c: 'text-primary' },
-                { l: 'DSGN', v: stats.dsgn, c: 'text-primary' },
-                { l: 'Active', v: stats.active, c: 'text-emerald-700' }
-              ].map(s => (
+              {[ { l: 'Total', v: stats.total, c: 'text-primary' }, { l: 'DEV', v: stats.devs, c: 'text-primary' }, { l: 'DSGN', v: stats.dsgn, c: 'text-primary' }, { l: 'Active', v: stats.active, c: 'text-emerald-700' } ].map(s => (
                 <div key={s.l} className="bg-surface-container-lowest p-6 md:p-8 rounded-sm shadow-[0_12px_40px_rgba(50,50,50,0.06)] hover:translate-y-[-2px] transition-all border border-outline-variant/5">
                   <p className="uppercase tracking-[0.1em] text-[8px] md:text-[9px] font-black text-stone-400 mb-2 md:mb-4">{s.l}</p>
                   <h3 className={`text-3xl md:text-5xl font-headline font-bold ${s.c}`}>{s.v}</h3>
@@ -265,13 +246,11 @@ const SecretPanel = () => {
               ))}
             </div>
 
-            {/* Matrix Table */}
             <div className="bg-surface-container-lowest rounded-sm border border-outline-variant/10 shadow-2xl w-full">
                <div className="p-4 md:p-6 border-b border-outline-variant/10 flex gap-4 w-full">
                   <span className="material-symbols-outlined text-stone-300">search</span>
                   <input type="text" placeholder="FILTER MATRIX..." className="bg-transparent border-none outline-none text-[10px] font-black uppercase tracking-widest w-full" value={search} onChange={e => setSearch(e.target.value)} />
                </div>
-               {/* RECENTLY CHANGED: Added overflow-x-auto to make the table scrollable on small screens */}
               <div className="overflow-x-auto w-full">
                 <table className="w-full text-left min-w-[800px]">
                   <thead className="bg-surface-container-low border-b border-outline-variant/10">
@@ -297,12 +276,17 @@ const SecretPanel = () => {
                         </td>
                         <td className="p-4 md:p-6 font-mono text-[10px] md:text-xs text-emerald-800 font-bold tracking-tighter">{i.verification_id}</td>
                         <td className="p-4 md:p-6">
-                          <span className="text-[8px] md:text-[9px] font-black uppercase text-stone-500 border border-stone-200 px-2 py-0.5 rounded-sm whitespace-nowrap">{i.performance_badge}</span>
+                          {i.performance_badge ? (
+                             <span className="text-[8px] md:text-[9px] font-black uppercase text-stone-500 border border-stone-200 px-2 py-0.5 rounded-sm whitespace-nowrap">{i.performance_badge}</span>
+                          ) : (
+                             <span className="text-[8px] md:text-[9px] text-stone-300 italic">None</span>
+                          )}
                         </td>
                         <td className="p-4 md:p-6">
                           <button onClick={() => handleToggleStatus(i.id, i.status)} className={`px-2 py-1 md:px-3 md:py-1 text-[8px] md:text-[9px] font-black uppercase rounded-sm transition-all ${i.status === 'Active' ? 'bg-emerald-50 text-emerald-700' : 'bg-stone-100 text-stone-400'}`}>{i.status}</button>
                         </td>
                         <td className="p-4 md:p-6 text-right space-x-2 md:space-x-4">
+                          {i.certificate_url && <a href={i.certificate_url} target="_blank" rel="noreferrer" className="material-symbols-outlined text-stone-300 hover:text-emerald-600 transition-colors text-sm md:text-base">description</a>}
                           <button onClick={() => { navigator.clipboard.writeText(i.verification_id); alert('Reference ID Copied'); }} className="material-symbols-outlined text-stone-300 hover:text-emerald-600 transition-colors text-sm md:text-base">content_copy</button>
                           <button onClick={() => handleDelete(i.id)} className="material-symbols-outlined text-stone-300 hover:text-red-500 transition-colors text-sm md:text-base">delete</button>
                         </td>
@@ -325,10 +309,10 @@ const SecretPanel = () => {
                 </div>
                 
                 <div className="space-y-1">
-                  <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Identity Capture</label>
+                  <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Identity Capture (Photo)</label>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-4 py-3">
-                     <input type="file" accept="image/*" onChange={handleImageUpload} className="text-[8px] md:text-[9px] font-black uppercase text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:bg-stone-900 file:text-white hover:file:bg-emerald-600 cursor-pointer w-full sm:w-auto" />
-                     {uploading && <span className="text-[9px] font-black text-emerald-600 animate-pulse uppercase">Scaling...</span>}
+                     <input type="file" accept="image/*" onChange={handleAvatarUpload} className="text-[8px] md:text-[9px] font-black uppercase text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:bg-stone-900 file:text-white hover:file:bg-emerald-600 cursor-pointer w-full sm:w-auto" />
+                     {uploadingAvatar && <span className="text-[9px] font-black text-emerald-600 animate-pulse uppercase">Scaling...</span>}
                      {formData.avatar_url && <span className="material-symbols-outlined text-emerald-500">verified_user</span>}
                   </div>
                 </div>
@@ -352,7 +336,22 @@ const SecretPanel = () => {
                   </select>
                 </div>
 
-                {/* Skill Matrix System */}
+                {/* NEW: Optional Performance Badge */}
+                <div className="space-y-1">
+                  <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Performance Badge <span className="text-stone-400 lowercase font-medium tracking-normal">(Optional - leave blank to hide)</span></label>
+                  <input className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-sm md:text-base font-bold" placeholder="e.g. Top 10% Performer" value={formData.performance_badge} onChange={e => setFormData({...formData, performance_badge: e.target.value})} />
+                </div>
+
+                {/* NEW: Certificate Document Upload */}
+                <div className="space-y-1">
+                  <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Official Certificate <span className="text-stone-400 lowercase font-medium tracking-normal">(PDF/Image)</span></label>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 py-3">
+                     <input type="file" accept=".pdf,image/*" onChange={handleCertificateUpload} className="text-[8px] md:text-[9px] font-black uppercase text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:bg-stone-200 file:text-stone-800 hover:file:bg-emerald-600 hover:file:text-white cursor-pointer w-full sm:w-auto transition-colors" />
+                     {uploadingCert && <span className="text-[9px] font-black text-emerald-600 animate-pulse uppercase">Uploading...</span>}
+                     {formData.certificate_url && <span className="material-symbols-outlined text-emerald-500">description</span>}
+                  </div>
+                </div>
+
                 <div className="md:col-span-2 space-y-4 md:space-y-6 bg-stone-50 p-4 md:p-8 border border-outline-variant/10">
                   <label className="uppercase tracking-[0.3em] text-[9px] md:text-[10px] font-black text-primary block">Skill Matrix Selection ({formData.skills.length}/10)</label>
                   <div className="flex flex-wrap gap-2">
@@ -377,7 +376,7 @@ const SecretPanel = () => {
                   <textarea rows="4" className="w-full border border-outline-variant/20 bg-white p-3 md:p-4 focus:ring-0 focus:border-tertiary text-xs md:text-sm resize-none" value={formData.summary} onChange={e => setFormData({...formData, summary: e.target.value})} />
                 </div>
 
-                <button disabled={uploading} className="md:col-span-2 bg-primary text-on-primary py-4 md:py-6 font-headline font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] md:tracking-[0.4em] hover:bg-emerald-800 transition-all flex items-center justify-center gap-2 md:gap-4 shadow-2xl active:scale-[0.98] disabled:opacity-50">
+                <button disabled={uploadingAvatar || uploadingCert} className="md:col-span-2 bg-primary text-on-primary py-4 md:py-6 font-headline font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] md:tracking-[0.4em] hover:bg-emerald-800 transition-all flex items-center justify-center gap-2 md:gap-4 shadow-2xl active:scale-[0.98] disabled:opacity-50">
                   Deploy Identity Certificate
                   <span className="material-symbols-outlined text-sm md:text-base">verified</span>
                 </button>
@@ -387,8 +386,6 @@ const SecretPanel = () => {
           </div>
         )}
       </main>
-
-      {/* Blueprint Trace Background Overlay */}
       <div className="fixed inset-0 pointer-events-none blueprint-grid opacity-20 z-[-1]"></div>
     </div>
   );
