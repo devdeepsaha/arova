@@ -13,6 +13,7 @@ const defaultFormState = {
   summary: '', skills: [], status: 'Active'
 };
 
+// RECENTLY CHANGED: Component now accepts initialData (for editing), onSuccess, and onCancel props
 const CertificateForm = ({ initialData, onSuccess, onCancel }) => {
   const [formData, setFormData] = useState(defaultFormState);
   const [customSkill, setCustomSkill] = useState('');
@@ -20,14 +21,13 @@ const CertificateForm = ({ initialData, onSuccess, onCancel }) => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingCert, setUploadingCert] = useState(false);
 
-  // Load data if editing
+  // RECENTLY CHANGED: Populates the form if editing an existing intern
   useEffect(() => {
     if (initialData) setFormData(initialData);
     else setFormData(defaultFormState);
   }, [initialData]);
 
   const handleAvatarUpload = async (e) => {
-    // ... (Keep the exact same canvas resizing logic from the previous monolithic file here)
     const file = e.target.files[0];
     if (!file) return;
     setUploadingAvatar(true);
@@ -62,7 +62,6 @@ const CertificateForm = ({ initialData, onSuccess, onCancel }) => {
   };
 
   const handleCertificateUpload = async (e) => {
-    // ... (Keep the exact same certificate upload logic here)
     const file = e.target.files[0];
     if (!file) return;
     setUploadingCert(true);
@@ -97,6 +96,7 @@ const CertificateForm = ({ initialData, onSuccess, onCancel }) => {
     }
   };
 
+  // RECENTLY CHANGED: Handles both inserting a new record and updating an existing one, then triggers onSuccess
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg({ text: 'Processing Request...', type: 'info' });
@@ -121,46 +121,95 @@ const CertificateForm = ({ initialData, onSuccess, onCancel }) => {
       )}
       <div className="bg-surface-container-lowest p-6 md:p-12 rounded-sm border border-outline-variant/10 shadow-2xl relative">
         <h2 className="text-xl md:text-2xl font-headline font-bold text-primary uppercase mb-8">
-          {initialData ? `Editing: ${formData.full_name}` : 'Issue New Certificate'}
+          {initialData ? `Editing Record: ${formData.full_name}` : 'Issue New Certificate'}
         </h2>
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-           {/* Paste the exact same form fields from the previous SecretPanel.jsx here */}
-           <div className="space-y-1">
-             <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Full Legal Name</label>
-             <input required className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-sm md:text-base font-bold" value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} />
-           </div>
+          <div className="space-y-1">
+            <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Full Legal Name</label>
+            <input required className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-sm md:text-base font-bold" value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} />
+          </div>
+          
+          <div className="space-y-1">
+            <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Identity Capture (Photo)</label>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 py-3">
+               <input type="file" accept="image/*" onChange={handleAvatarUpload} className="text-[8px] md:text-[9px] font-black uppercase text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:bg-stone-900 file:text-white hover:file:bg-emerald-600 cursor-pointer w-full sm:w-auto" />
+               {uploadingAvatar && <span className="text-[9px] font-black text-emerald-600 animate-pulse uppercase">Scaling...</span>}
+               {formData.avatar_url && <span className="material-symbols-outlined text-emerald-500">verified_user</span>}
+            </div>
+          </div>
 
-           <div className="space-y-1">
-             <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Identity Capture</label>
-             <div className="flex flex-col sm:flex-row sm:items-center gap-4 py-3">
-                <input type="file" accept="image/*" onChange={handleAvatarUpload} className="text-[8px] md:text-[9px] font-black uppercase text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:bg-stone-900 file:text-white hover:file:bg-emerald-600 cursor-pointer w-full sm:w-auto" />
-                {formData.avatar_url && <span className="material-symbols-outlined text-emerald-500">verified_user</span>}
-             </div>
-           </div>
+          <div className="space-y-1">
+            <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Role Authorization</label>
+            <select className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-xs md:text-sm font-bold uppercase" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}>
+              <option value="Software Engineering Intern">Engineering (DEV)</option>
+              <option value="UI/UX Design Intern">Design (DSGN)</option>
+              <option value="Marketing Intern">Marketing (MKT)</option>
+              <option value="HR Intern">Human Resources (HR)</option>
+            </select>
+          </div>
 
-           {/* ... Add the rest of the dropdowns (Role, Status, Duration, Hub, Badge, Cert, Skills, Summary) exactly as they were ... */}
-           <div className="space-y-1">
-             <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Role Authorization</label>
-             <select className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-xs md:text-sm font-bold uppercase" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}>
-               <option value="Software Engineering Intern">Engineering (DEV)</option>
-               <option value="UI/UX Design Intern">Design (DSGN)</option>
-               <option value="Marketing Intern">Marketing (MKT)</option>
-               <option value="HR Intern">Human Resources (HR)</option>
-             </select>
-           </div>
+          <div className="space-y-1">
+            <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Initial Status</label>
+            <select className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-xs md:text-sm font-bold uppercase" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}>
+              <option value="Active">Active</option>
+              <option value="Completed">Completed</option>
+              <option value="Extended">Extended</option>
+            </select>
+          </div>
 
-           <div className="space-y-1">
-             <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Duration</label>
-             <input className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-sm md:text-base font-bold" value={formData.duration} onChange={e => setFormData({...formData, duration: e.target.value})} />
-           </div>
+          <div className="space-y-1">
+            <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Duration</label>
+            <input className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-sm md:text-base font-bold" placeholder="e.g. 4 Weeks, 3 Months..." value={formData.duration} onChange={e => setFormData({...formData, duration: e.target.value})} />
+          </div>
 
-           {/* ... etc ... */}
+          <div className="space-y-1">
+            <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Work Location</label>
+            <input className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-sm md:text-base font-bold" placeholder="e.g. Remote, Kolkata..." value={formData.hub_location} onChange={e => setFormData({...formData, hub_location: e.target.value})} />
+          </div>
 
-           <button disabled={uploadingAvatar || uploadingCert} className="md:col-span-2 bg-primary text-on-primary py-4 md:py-6 font-headline font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] md:tracking-[0.4em] hover:bg-emerald-800 transition-all flex items-center justify-center gap-2 md:gap-4 shadow-2xl active:scale-[0.98] disabled:opacity-50">
-             {initialData ? 'Update Record' : 'Deploy Certificate'}
-             <span className="material-symbols-outlined text-sm md:text-base">{initialData ? 'update' : 'verified'}</span>
-           </button>
-           {msg.text && <p className="md:col-span-2 text-center text-[10px] font-black uppercase text-emerald-600">{msg.text}</p>}
+          <div className="space-y-1">
+            <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Performance Badge <span className="text-stone-400 lowercase font-medium tracking-normal">(Optional)</span></label>
+            <input className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-sm md:text-base font-bold" placeholder="e.g. Top 10% Performer" value={formData.performance_badge} onChange={e => setFormData({...formData, performance_badge: e.target.value})} />
+          </div>
+
+          <div className="space-y-1">
+            <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Official Certificate <span className="text-stone-400 lowercase font-medium tracking-normal">(PDF/Image)</span></label>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 py-3">
+               <input type="file" accept=".pdf,image/*" onChange={handleCertificateUpload} className="text-[8px] md:text-[9px] font-black uppercase text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:bg-stone-200 file:text-stone-800 hover:file:bg-emerald-600 hover:file:text-white cursor-pointer w-full sm:w-auto transition-colors" />
+               {uploadingCert && <span className="text-[9px] font-black text-emerald-600 animate-pulse uppercase">Uploading...</span>}
+               {formData.certificate_url && <span className="material-symbols-outlined text-emerald-500">description</span>}
+            </div>
+          </div>
+
+          <div className="md:col-span-2 space-y-4 md:space-y-6 bg-stone-50 p-4 md:p-8 border border-outline-variant/10">
+            <label className="uppercase tracking-[0.3em] text-[9px] md:text-[10px] font-black text-primary block">Skill Matrix Selection ({formData.skills.length}/10)</label>
+            <div className="flex flex-wrap gap-2">
+              {PREDEFINED_SKILLS.map(s => (
+                <button type="button" key={s} onClick={() => toggleSkill(s)} className={`px-3 py-2 md:px-4 md:py-2 text-[8px] md:text-[9px] font-black uppercase border transition-all ${formData.skills.includes(s) ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg' : 'bg-white border-stone-200 text-stone-400 hover:border-emerald-600'}`}>{s}</button>
+              ))}
+            </div>
+            <div className="relative">
+              <input type="text" placeholder="DEPLOY CUSTOM SKILL TAG + ENTER..." className="w-full bg-transparent border-0 border-b border-stone-300 py-3 text-[10px] md:text-xs font-bold outline-none focus:border-emerald-600" value={customSkill} onChange={(e) => setCustomSkill(e.target.value)} onKeyDown={addCustomSkill} disabled={formData.skills.length >= 10} />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {formData.skills.map(s => (
+                <div key={s} className="bg-stone-900 text-white px-2 py-1 md:px-3 md:py-1 text-[8px] md:text-[9px] font-black uppercase flex items-center gap-1 md:gap-2">
+                  {s} <span onClick={() => toggleSkill(s)} className="material-symbols-outlined text-[10px] md:text-[12px] cursor-pointer hover:text-red-400">close</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="md:col-span-2 space-y-1">
+            <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Architectural Summary</label>
+            <textarea rows="4" className="w-full border border-outline-variant/20 bg-white p-3 md:p-4 focus:ring-0 focus:border-tertiary text-xs md:text-sm resize-none" value={formData.summary} onChange={e => setFormData({...formData, summary: e.target.value})} />
+          </div>
+
+          <button disabled={uploadingAvatar || uploadingCert} className="md:col-span-2 bg-primary text-on-primary py-4 md:py-6 font-headline font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] md:tracking-[0.4em] hover:bg-emerald-800 transition-all flex items-center justify-center gap-2 md:gap-4 shadow-2xl active:scale-[0.98] disabled:opacity-50">
+            {initialData ? 'Update Record' : 'Deploy Certificate'}
+            <span className="material-symbols-outlined text-sm md:text-base">{initialData ? 'update' : 'verified'}</span>
+          </button>
+          {msg.text && <p className="md:col-span-2 text-center text-[10px] font-black uppercase text-emerald-600">{msg.text}</p>}
         </form>
       </div>
     </div>
