@@ -28,21 +28,25 @@ const Verify = () => {
   };
 
   return (
-    <main className="relative pt-32 pb-24 px-6 lg:px-12 min-h-screen flex flex-col items-center">
+    <main className="relative pt-24 md:pt-32 pb-24 px-4 md:px-12 min-h-screen flex flex-col items-center">
       <div className="absolute inset-0 blueprint-grid pointer-events-none opacity-[0.03]"></div>
       
-      {/* Search Section */}
-      <section className="w-full max-w-2xl text-center z-10 mb-16">
-        <h1 className="font-headline text-5xl font-bold tracking-tighter text-stone-900 mb-4 uppercase">Identity Verification</h1>
-        <p className="text-stone-500 mb-10 max-w-md mx-auto leading-relaxed text-sm font-medium uppercase tracking-widest">
+      {/* Search Section - REDESIGNED FOR PREMIUM LOOK */}
+      <section className="w-full max-w-3xl text-center z-10 mb-12 md:mb-16">
+        <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tighter text-stone-900 mb-4 uppercase">Identity Verification</h1>
+        <p className="text-stone-500 mb-8 md:mb-10 max-w-md mx-auto leading-relaxed text-xs md:text-sm font-medium uppercase tracking-widest px-4">
           Validate professional credentials issued by Arova Technologies.
         </p>
         
-        <div className="relative group">
-          <label className="block text-left font-label text-[10px] uppercase tracking-[0.3em] text-emerald-600 font-black mb-2 ml-1">Credential Reference</label>
-          <div className="flex items-center gap-0 border-b-2 border-stone-200 focus-within:border-emerald-500 transition-all duration-300">
+        <div className="max-w-xl mx-auto relative px-2">
+          <label className="block text-left font-label text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold mb-3 ml-2">
+            Credential Reference ID
+          </label>
+          
+          {/* Unified Pill Container */}
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-0 bg-white border-2 border-stone-100 focus-within:border-emerald-500 rounded-xl p-2 transition-all duration-300 shadow-xl shadow-stone-200/50">
             <input 
-              className="w-full bg-transparent border-none py-5 text-2xl font-mono focus:ring-0 placeholder:text-stone-300 uppercase tracking-tighter" 
+              className="w-full bg-transparent border-none focus:ring-0 focus:outline-none py-4 px-4 text-xl md:text-2xl font-mono placeholder:text-stone-300 uppercase tracking-tighter text-stone-900" 
               placeholder="ARV-DEV-XXXXXX-XX" 
               value={searchId}
               onChange={(e) => setSearchId(e.target.value)}
@@ -51,13 +55,13 @@ const Verify = () => {
             <button 
               onClick={handleVerify}
               disabled={loading}
-              className="bg-stone-900 hover:bg-emerald-600 text-white font-bold px-10 py-5 transition-all duration-300 active:scale-95 flex items-center gap-3 uppercase text-xs tracking-widest"
+              className="w-full sm:w-auto bg-stone-900 hover:bg-emerald-600 text-white font-bold px-8 py-4 rounded-lg transition-all duration-300 active:scale-95 flex items-center justify-center gap-3 uppercase text-xs tracking-widest disabled:opacity-70 disabled:cursor-not-allowed"
             >
               <span>{loading ? 'Validating' : 'Verify'}</span>
               <span className="material-symbols-outlined text-sm">{loading ? 'sync' : 'verified'}</span>
             </button>
           </div>
-          {error && <p className="text-red-500 text-[10px] mt-4 text-left font-black uppercase tracking-widest ml-1 animate-pulse">{error}</p>}
+          {error && <p className="text-red-500 text-[10px] mt-4 text-center sm:text-left font-black uppercase tracking-widest ml-2 animate-pulse">{error}</p>}
         </div>
       </section>
 
