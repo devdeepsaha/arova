@@ -9,6 +9,8 @@ import About from './pages/About'
 import Pricing from './pages/Pricing'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
+import Verify from './pages/Verify'
+import SecretPanel from './pages/SecretPanel'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -23,6 +25,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="pricing" element={<Pricing />} />
           <Route path="privacy" element={<PrivacyPolicy />} />
           <Route path="terms" element={<TermsOfService />} />
+          <Route path="verify" element={<Verify />} />
+          <Route path="secretpanel" element={<SecretPanel />} />
         </Route>
       </Routes>
     </BrowserRouter>
