@@ -101,12 +101,19 @@ const CertificateForm = ({ initialData, onSuccess, onCancel }) => {
     e.preventDefault();
     setMsg({ text: 'Processing Request...', type: 'info' });
     
+    // CRITICAL FIX: Separate the database-managed IDs from the editable data
+    const { id, created_at, ...cleanUpdateData } = formData;
+    
     if (initialData?.id) {
-      const { error } = await supabase.from('interns').update(formData).eq('id', initialData.id);
+      // Use the clean data for updates
+      const { error } = await supabase.from('interns').update(cleanUpdateData).eq('id', initialData.id);
+      
       if (error) setMsg({ text: error.message, type: 'error' });
       else onSuccess('Record Updated Successfully');
     } else {
-      const { error } = await supabase.from('interns').insert([formData]);
+      // Use the clean data for inserts
+      const { error } = await supabase.from('interns').insert([cleanUpdateData]);
+      
       if (error) setMsg({ text: error.message, type: 'error' });
       else onSuccess('Certificate Deployed');
     }
