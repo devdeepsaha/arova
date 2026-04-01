@@ -13,6 +13,9 @@ const SecretPanel = () => {
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
+  // --- NEW: Edit Mode Tracking ---
+  const [editingId, setEditingId] = useState(null);
+
   const [customSkill, setCustomSkill] = useState('');
   const PREDEFINED_SKILLS = [
     "Fast Builder", "Problem Solver", "Strong Communicator", 
@@ -20,19 +23,20 @@ const SecretPanel = () => {
     "Attention to Detail", "Creative Thinker", "High Ownership", "Quick Learner"
   ];
 
-  // Form State - Notice 'performance_badge' starts empty, and 'certificate_url' is added
-  const [formData, setFormData] = useState({
+  const defaultFormState = {
     full_name: '', 
     role: 'Software Engineering Intern', 
-    duration: '3 Months',
+    duration: '3 Months', // Default, but now changeable
     performance_badge: '', 
     avatar_url: '', 
     certificate_url: '',
-    hub_location: 'Kolkata, India',
+    hub_location: 'Remote', // Defaulting to Remote
     summary: '', 
     skills: [], 
     status: 'Active'
-  });
+  };
+
+  const [formData, setFormData] = useState(defaultFormState);
   
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingCert, setUploadingCert] = useState(false);
@@ -62,7 +66,6 @@ const SecretPanel = () => {
     }
   };
 
-  // --- AVATAR UPLOAD (With Resize) ---
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -88,7 +91,7 @@ const SecretPanel = () => {
             if (error) throw error;
             const { data: urlData } = supabase.storage.from('intern-avatars').getPublicUrl(fileName);
             setFormData({ ...formData, avatar_url: urlData.publicUrl });
-            setMsg({ text: 'Avatar synced successfully', type: 'success' });
+            setMsg({ text: 'Biometric photo synced', type: 'success' });
             setUploadingAvatar(false);
           }, 'image/jpeg', 0.8);
         };
@@ -99,28 +102,18 @@ const SecretPanel = () => {
     }
   };
 
-  // --- CERTIFICATE UPLOAD (Direct PDF/Image Upload) ---
   const handleCertificateUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setUploadingCert(true);
     try {
-      // We don't resize certificates, we upload them directly (could be PDF)
       const fileExt = file.name.split('.').pop();
       const fileName = `cert-${Date.now()}.${fileExt}`;
-      
-      const { error } = await supabase.storage
-        .from('intern-certificates')
-        .upload(fileName, file, { cacheControl: '3600', upsert: false });
-
+      const { error } = await supabase.storage.from('intern-certificates').upload(fileName, file, { cacheControl: '3600', upsert: false });
       if (error) throw error;
-
-      const { data: urlData } = supabase.storage
-        .from('intern-certificates')
-        .getPublicUrl(fileName);
-
+      const { data: urlData } = supabase.storage.from('intern-certificates').getPublicUrl(fileName);
       setFormData({ ...formData, certificate_url: urlData.publicUrl });
-      setMsg({ text: 'Official Certificate document attached', type: 'success' });
+      setMsg({ text: 'Official Certificate attached', type: 'success' });
     } catch (err) {
       setMsg({ text: 'Certificate upload failed: ' + err.message, type: 'error' });
     } finally {
@@ -145,17 +138,44 @@ const SecretPanel = () => {
     }
   };
 
-  const handleIssue = async (e) => {
+  // --- NEW: Form Submission handles BOTH Insert and Update ---
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMsg({ text: 'Deploying to Registry...', type: 'info' });
-    const { error } = await supabase.from('interns').insert([formData]);
-    if (error) setMsg({ text: error.message, type: 'error' });
-    else {
-      setMsg({ text: 'Identity Certificate Deployed Successfully', type: 'success' });
-      setFormData({ full_name: '', role: 'Software Engineering Intern', duration: '3 Months', performance_badge: '', avatar_url: '', certificate_url: '', hub_location: 'Kolkata, India', summary: '', skills: [], status: 'Active' });
-      fetchInterns();
-      setActiveTab('overview');
+    setMsg({ text: editingId ? 'Updating Registry...' : 'Deploying to Registry...', type: 'info' });
+    
+    if (editingId) {
+      const { error } = await supabase.from('interns').update(formData).eq('id', editingId);
+      if (error) setMsg({ text: error.message, type: 'error' });
+      else {
+        setMsg({ text: 'Record Updated Successfully', type: 'success' });
+        cancelEdit();
+        fetchInterns();
+      }
+    } else {
+      const { error } = await supabase.from('interns').insert([formData]);
+      if (error) setMsg({ text: error.message, type: 'error' });
+      else {
+        setMsg({ text: 'Identity Certificate Deployed', type: 'success' });
+        setFormData(defaultFormState);
+        fetchInterns();
+        setActiveTab('overview');
+      }
     }
+  };
+
+  // --- NEW: Edit Controls ---
+  const handleEdit = (intern) => {
+    setFormData(intern);
+    setEditingId(intern.id);
+    setActiveTab('issue');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEdit = () => {
+    setFormData(defaultFormState);
+    setEditingId(null);
+    setActiveTab('overview');
+    setMsg({ text: '', type: '' });
   };
 
   const handleToggleStatus = async (id, currentStatus) => {
@@ -215,12 +235,14 @@ const SecretPanel = () => {
           <p className="text-[10px] text-on-surface-variant/60 font-bold uppercase mt-1">Identity Control</p>
         </div>
         <nav className="flex flex-col gap-2">
-          {[ { id: 'overview', icon: 'dashboard', label: 'Identity Matrix' }, { id: 'issue', icon: 'verified_user', label: 'Certificate Issue' } ].map(item => (
-            <button key={item.id} onClick={() => { setActiveTab(item.id); setIsMobileMenuOpen(false); }} className={`flex items-center gap-4 px-4 py-3 rounded-sm transition-all duration-300 ${activeTab === item.id ? 'bg-[#f6f3f2] text-emerald-800 font-black border-l-2 border-emerald-700' : 'text-[#5f5e5e] opacity-60 hover:opacity-100 hover:bg-stone-50'}`}>
-              <span className="material-symbols-outlined text-sm">{item.icon}</span>
-              <span className="uppercase tracking-widest text-[10px] font-bold">{item.label}</span>
-            </button>
-          ))}
+          <button onClick={() => { setActiveTab('overview'); if(editingId) cancelEdit(); setIsMobileMenuOpen(false); }} className={`flex items-center gap-4 px-4 py-3 rounded-sm transition-all duration-300 ${activeTab === 'overview' ? 'bg-[#f6f3f2] text-emerald-800 font-black border-l-2 border-emerald-700' : 'text-[#5f5e5e] opacity-60 hover:opacity-100 hover:bg-stone-50'}`}>
+            <span className="material-symbols-outlined text-sm">dashboard</span>
+            <span className="uppercase tracking-widest text-[10px] font-bold">Identity Matrix</span>
+          </button>
+          <button onClick={() => { setActiveTab('issue'); setIsMobileMenuOpen(false); }} className={`flex items-center gap-4 px-4 py-3 rounded-sm transition-all duration-300 ${activeTab === 'issue' ? 'bg-[#f6f3f2] text-emerald-800 font-black border-l-2 border-emerald-700' : 'text-[#5f5e5e] opacity-60 hover:opacity-100 hover:bg-stone-50'}`}>
+            <span className="material-symbols-outlined text-sm">{editingId ? 'edit_document' : 'verified_user'}</span>
+            <span className="uppercase tracking-widest text-[10px] font-bold">{editingId ? 'Edit Record' : 'New Certificate'}</span>
+          </button>
         </nav>
         <button onClick={() => { const csv = interns.map(i => `${i.full_name},${i.verification_id}`).join('\n'); const blob = new Blob([csv], { type: 'text/csv' }); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'arova_registry.csv'; a.click(); }} className="mt-auto mb-4 text-[10px] font-black uppercase text-stone-400 hover:text-emerald-700 transition-colors text-left px-4">Export Registry (CSV)</button>
         <button onClick={() => supabase.auth.signOut().then(() => window.location.reload())} className="text-[10px] font-black uppercase text-red-500 text-left px-4">Terminate Session</button>
@@ -288,6 +310,8 @@ const SecretPanel = () => {
                         <td className="p-4 md:p-6 text-right space-x-2 md:space-x-4">
                           {i.certificate_url && <a href={i.certificate_url} target="_blank" rel="noreferrer" className="material-symbols-outlined text-stone-300 hover:text-emerald-600 transition-colors text-sm md:text-base">description</a>}
                           <button onClick={() => { navigator.clipboard.writeText(i.verification_id); alert('Reference ID Copied'); }} className="material-symbols-outlined text-stone-300 hover:text-emerald-600 transition-colors text-sm md:text-base">content_copy</button>
+                          {/* NEW: Edit Button */}
+                          <button onClick={() => handleEdit(i)} className="material-symbols-outlined text-stone-300 hover:text-blue-500 transition-colors text-sm md:text-base">edit</button>
                           <button onClick={() => handleDelete(i.id)} className="material-symbols-outlined text-stone-300 hover:text-red-500 transition-colors text-sm md:text-base">delete</button>
                         </td>
                       </tr>
@@ -301,8 +325,20 @@ const SecretPanel = () => {
 
         {activeTab === 'issue' && (
           <div className="max-w-4xl animate-in slide-in-from-right-8 duration-700 w-full">
-            <div className="bg-surface-container-lowest p-6 md:p-12 rounded-sm border border-outline-variant/10 shadow-2xl">
-              <form onSubmit={handleIssue} className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+            <div className="bg-surface-container-lowest p-6 md:p-12 rounded-sm border border-outline-variant/10 shadow-2xl relative">
+              
+              {/* NEW: Cancel Edit Button */}
+              {editingId && (
+                <button onClick={cancelEdit} className="absolute top-6 right-6 text-[10px] font-black uppercase tracking-widest text-red-500 hover:underline flex items-center gap-1">
+                  <span className="material-symbols-outlined text-xs">close</span> Cancel Edit
+                </button>
+              )}
+
+              <h2 className="text-xl md:text-2xl font-headline font-bold text-primary uppercase mb-8">
+                {editingId ? `Editing Record: ${formData.full_name}` : 'Issue New Certificate'}
+              </h2>
+
+              <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
                 <div className="space-y-1">
                   <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Full Legal Name</label>
                   <input required className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-sm md:text-base font-bold" value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} />
@@ -336,13 +372,23 @@ const SecretPanel = () => {
                   </select>
                 </div>
 
-                {/* NEW: Optional Performance Badge */}
+                {/* NEW: Flexible Duration Input */}
                 <div className="space-y-1">
-                  <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Performance Badge <span className="text-stone-400 lowercase font-medium tracking-normal">(Optional - leave blank to hide)</span></label>
+                  <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Duration</label>
+                  <input className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-sm md:text-base font-bold" placeholder="e.g. 4 Weeks, 3 Months..." value={formData.duration} onChange={e => setFormData({...formData, duration: e.target.value})} />
+                </div>
+
+                {/* NEW: Flexible Location Input */}
+                <div className="space-y-1">
+                  <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Work Location</label>
+                  <input className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-sm md:text-base font-bold" placeholder="e.g. Remote, Kolkata..." value={formData.hub_location} onChange={e => setFormData({...formData, hub_location: e.target.value})} />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Performance Badge <span className="text-stone-400 lowercase font-medium tracking-normal">(Optional)</span></label>
                   <input className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-sm md:text-base font-bold" placeholder="e.g. Top 10% Performer" value={formData.performance_badge} onChange={e => setFormData({...formData, performance_badge: e.target.value})} />
                 </div>
 
-                {/* NEW: Certificate Document Upload */}
                 <div className="space-y-1">
                   <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Official Certificate <span className="text-stone-400 lowercase font-medium tracking-normal">(PDF/Image)</span></label>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-4 py-3">
@@ -377,8 +423,8 @@ const SecretPanel = () => {
                 </div>
 
                 <button disabled={uploadingAvatar || uploadingCert} className="md:col-span-2 bg-primary text-on-primary py-4 md:py-6 font-headline font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] md:tracking-[0.4em] hover:bg-emerald-800 transition-all flex items-center justify-center gap-2 md:gap-4 shadow-2xl active:scale-[0.98] disabled:opacity-50">
-                  Deploy Identity Certificate
-                  <span className="material-symbols-outlined text-sm md:text-base">verified</span>
+                  {editingId ? 'Update Identity Record' : 'Deploy Identity Certificate'}
+                  <span className="material-symbols-outlined text-sm md:text-base">{editingId ? 'update' : 'verified'}</span>
                 </button>
                 {msg.text && <p className={`md:col-span-2 text-center text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] ${msg.type === 'error' ? 'text-red-500' : 'text-emerald-600'}`}>{msg.text}</p>}
               </form>

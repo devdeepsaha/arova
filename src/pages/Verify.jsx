@@ -81,10 +81,10 @@ const Verify = () => {
                 <div className="mt-12 md:mt-16 grid grid-cols-2 gap-6 md:gap-10 border-t border-stone-100 pt-8 md:pt-10">
                   <div>
                     <span className="block font-label text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold mb-2">Duration</span>
-                    <span className="font-headline text-base md:text-lg font-bold text-stone-800">{intern.duration}</span>
+                    <span className="font-headline text-base md:text-lg font-bold text-stone-800 capitalize">{intern.duration}</span>
                   </div>
                   
-                  {/* CONDITIONAL RENDER: Only shows if the admin typed a performance badge */}
+                  {/* CONDITIONAL: Shows only if admin added a badge */}
                   {intern.performance_badge && intern.performance_badge.trim() !== '' && (
                     <div>
                       <span className="block font-label text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold mb-2">Performance</span>
@@ -106,8 +106,8 @@ const Verify = () => {
                   />
                 </div>
                 <div className="mt-8 text-center md:text-right">
-                  <span className="block font-label text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold mb-1">Deployment Hub</span>
-                  <span className="font-headline font-bold text-stone-900">{intern.hub_location}</span>
+                  <span className="block font-label text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold mb-1">Work Location</span>
+                  <span className="font-headline font-bold text-stone-900 capitalize">{intern.hub_location}</span>
                 </div>
               </div>
             </div>
@@ -116,7 +116,7 @@ const Verify = () => {
             <div className="bg-stone-900 px-6 md:px-12 py-10 md:py-14">
               <h3 className="font-label text-[10px] uppercase tracking-[0.4em] text-emerald-500 font-black mb-8 text-center md:text-left">Skill Matrix & Competency</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-                <p className="text-stone-400 leading-relaxed text-sm font-medium">
+                <p className="text-stone-400 leading-relaxed text-sm font-medium whitespace-pre-line">
                   {intern.summary}
                 </p>
                 <div className="flex flex-wrap gap-2 content-start justify-center md:justify-start">
