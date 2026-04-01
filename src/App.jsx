@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+// RECENTLY CHANGED: Updated the import paths to match your actual folder structure
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
 
 function App() {
   const location = useLocation();
@@ -22,3 +23,5 @@ function App() {
     </div>
   );
 }
+
+export default App;

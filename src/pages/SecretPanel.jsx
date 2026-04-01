@@ -11,6 +11,9 @@ const SecretPanel = () => {
   const [password, setPassword] = useState('');
   const [msg, setMsg] = useState({ text: '', type: '' });
   
+  // RECENTLY CHANGED: Added state to control the mobile sidebar menu
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
   // --- Skill System State ---
   const [customSkill, setCustomSkill] = useState('');
   const PREDEFINED_SKILLS = [
@@ -63,7 +66,7 @@ const SecretPanel = () => {
     }
   };
 
-  // --- IMAGE UPLOAD & RESIZE LOGIC (CRITICAL) ---
+  // --- IMAGE UPLOAD & RESIZE LOGIC ---
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -172,11 +175,11 @@ const SecretPanel = () => {
   // --- LOGIN VIEW ---
   if (!session) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-surface blueprint-grid">
-        <div className="max-w-md w-full p-12 bg-surface-container-lowest rounded-sm shadow-2xl border border-outline-variant/10">
+      <main className="min-h-screen flex items-center justify-center bg-surface blueprint-grid px-4">
+        <div className="max-w-md w-full p-8 md:p-12 bg-surface-container-lowest rounded-sm shadow-2xl border border-outline-variant/10">
           <div className="text-center mb-10">
             <span className="material-symbols-outlined text-primary text-5xl mb-4">lock_open</span>
-            <h2 className="text-3xl font-headline font-bold text-primary uppercase tracking-tighter">Authorization</h2>
+            <h2 className="text-2xl md:text-3xl font-headline font-bold text-primary uppercase tracking-tighter">Authorization</h2>
             <p className="text-on-surface-variant text-[10px] uppercase tracking-widest font-black mt-2">Arova Admin Gateway</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-8">
@@ -191,10 +194,27 @@ const SecretPanel = () => {
   }
 
   return (
-    <div className="bg-surface text-on-surface min-h-screen font-body selection:bg-emerald-100 selection:text-emerald-900">
-      {/* Sidebar Navigation */}
-      <aside className="fixed left-0 top-0 h-screen w-64 border-r border-[#b3b2b1]/15 bg-[#fcf9f8]/70 backdrop-blur-2xl hidden md:flex flex-col p-8 z-60">
-        <div className="mt-12 mb-12">
+    <div className="bg-surface text-on-surface min-h-screen font-body selection:bg-emerald-100 selection:text-emerald-900 overflow-x-hidden">
+      
+      {/* RECENTLY CHANGED: Mobile Header for triggering sidebar */}
+      <div className="md:hidden fixed top-0 left-0 w-full bg-surface/90 backdrop-blur-xl border-b border-outline-variant/10 z-40 px-6 py-4 flex justify-between items-center shadow-sm">
+        <h2 className="uppercase tracking-[0.2em] text-[12px] font-black text-[#5f5e5e]">Arova Admin</h2>
+        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="material-symbols-outlined text-primary text-2xl">
+          {isMobileMenuOpen ? 'close' : 'menu'}
+        </button>
+      </div>
+
+      {/* RECENTLY CHANGED: Mobile Overlay Background */}
+      {isMobileMenuOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity"
+          onClick={() => setIsMobileMenuOpen(false)}
+        ></div>
+      )}
+
+      {/* RECENTLY CHANGED: Sidebar Navigation (Updated with responsive transform classes) */}
+      <aside className={`fixed left-0 top-0 h-screen w-64 border-r border-[#b3b2b1]/15 bg-[#fcf9f8]/95 backdrop-blur-2xl flex flex-col p-8 z-50 transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+        <div className="mt-8 md:mt-12 mb-12">
           <h2 className="uppercase tracking-[0.3em] text-[10px] font-black text-[#5f5e5e]">Arova Systems</h2>
           <p className="text-[10px] text-on-surface-variant/60 font-bold uppercase mt-1">Identity Control</p>
         </div>
@@ -203,7 +223,11 @@ const SecretPanel = () => {
             { id: 'overview', icon: 'dashboard', label: 'Identity Matrix' },
             { id: 'issue', icon: 'verified_user', label: 'Certificate Issue' }
           ].map(item => (
-            <button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex items-center gap-4 px-4 py-3 rounded-sm transition-all duration-300 ${activeTab === item.id ? 'bg-[#f6f3f2] text-emerald-800 font-black border-l-2 border-emerald-700' : 'text-[#5f5e5e] opacity-60 hover:opacity-100 hover:bg-stone-50'}`}>
+            <button 
+              key={item.id} 
+              onClick={() => { setActiveTab(item.id); setIsMobileMenuOpen(false); }} 
+              className={`flex items-center gap-4 px-4 py-3 rounded-sm transition-all duration-300 ${activeTab === item.id ? 'bg-[#f6f3f2] text-emerald-800 font-black border-l-2 border-emerald-700' : 'text-[#5f5e5e] opacity-60 hover:opacity-100 hover:bg-stone-50'}`}
+            >
               <span className="material-symbols-outlined text-sm">{item.icon}</span>
               <span className="uppercase tracking-widest text-[10px] font-bold">{item.label}</span>
             </button>
@@ -213,101 +237,105 @@ const SecretPanel = () => {
         <button onClick={() => supabase.auth.signOut().then(() => window.location.reload())} className="text-[10px] font-black uppercase text-red-500 text-left px-4">Terminate Session</button>
       </aside>
 
-      {/* Main Administrative Content */}
-      <main className="md:ml-64 pt-24 px-12 pb-12 min-h-screen blueprint-grid">
-        <header className="mb-12">
-          <h1 className="text-6xl font-headline font-bold tracking-tighter text-primary uppercase leading-none">Secret Panel</h1>
-          <div className="flex items-center gap-4 mt-4">
-             <p className="text-on-surface-variant/80 font-bold tracking-[0.2em] text-[10px] uppercase">Administrative Node: {session.user.email}</p>
-             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      {/* RECENTLY CHANGED: Main Content Area (Adjusted padding for mobile vs desktop) */}
+      <main className="md:ml-64 pt-24 md:pt-24 px-4 md:px-12 pb-12 min-h-screen blueprint-grid w-full">
+        <header className="mb-8 md:mb-12">
+          {/* RECENTLY CHANGED: Responsive text sizing for the header */}
+          <h1 className="text-4xl md:text-6xl font-headline font-bold tracking-tighter text-primary uppercase leading-none mt-4 md:mt-0">Secret Panel</h1>
+          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mt-4">
+             <p className="text-on-surface-variant/80 font-bold tracking-[0.1em] md:tracking-[0.2em] text-[9px] md:text-[10px] uppercase break-all">Administrative Node: {session.user.email}</p>
+             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse hidden md:block"></span>
           </div>
         </header>
 
         {activeTab === 'overview' && (
-          <div className="animate-in fade-in duration-1000">
+          <div className="animate-in fade-in duration-1000 w-full max-w-[100vw]">
             {/* Stats Bento Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
               {[
-                { l: 'Total Registry', v: stats.total, c: 'text-primary' },
-                { l: 'Engineering (DEV)', v: stats.devs, c: 'text-primary' },
-                { l: 'Design (DSGN)', v: stats.dsgn, c: 'text-primary' },
-                { l: 'Active Operations', v: stats.active, c: 'text-emerald-700' }
+                { l: 'Total', v: stats.total, c: 'text-primary' },
+                { l: 'DEV', v: stats.devs, c: 'text-primary' },
+                { l: 'DSGN', v: stats.dsgn, c: 'text-primary' },
+                { l: 'Active', v: stats.active, c: 'text-emerald-700' }
               ].map(s => (
-                <div key={s.l} className="bg-surface-container-lowest p-8 rounded-sm shadow-[0_12px_40px_rgba(50,50,50,0.06)] hover:translate-y-[-2px] transition-all border border-outline-variant/5">
-                  <p className="uppercase tracking-[0.1em] text-[9px] font-black text-stone-400 mb-4">{s.l}</p>
-                  <h3 className={`text-5xl font-headline font-bold ${s.c}`}>{s.v}</h3>
+                <div key={s.l} className="bg-surface-container-lowest p-6 md:p-8 rounded-sm shadow-[0_12px_40px_rgba(50,50,50,0.06)] hover:translate-y-[-2px] transition-all border border-outline-variant/5">
+                  <p className="uppercase tracking-[0.1em] text-[8px] md:text-[9px] font-black text-stone-400 mb-2 md:mb-4">{s.l}</p>
+                  <h3 className={`text-3xl md:text-5xl font-headline font-bold ${s.c}`}>{s.v}</h3>
                 </div>
               ))}
             </div>
 
             {/* Matrix Table */}
-            <div className="bg-surface-container-lowest rounded-sm border border-outline-variant/10 overflow-hidden shadow-2xl">
-               <div className="p-6 border-b border-outline-variant/10 flex gap-4">
+            <div className="bg-surface-container-lowest rounded-sm border border-outline-variant/10 shadow-2xl w-full">
+               <div className="p-4 md:p-6 border-b border-outline-variant/10 flex gap-4 w-full">
                   <span className="material-symbols-outlined text-stone-300">search</span>
-                  <input type="text" placeholder="FILTER IDENTITY MATRIX..." className="bg-transparent border-none outline-none text-[10px] font-black uppercase tracking-widest w-full" value={search} onChange={e => setSearch(e.target.value)} />
+                  <input type="text" placeholder="FILTER MATRIX..." className="bg-transparent border-none outline-none text-[10px] font-black uppercase tracking-widest w-full" value={search} onChange={e => setSearch(e.target.value)} />
                </div>
-              <table className="w-full text-left">
-                <thead className="bg-surface-container-low border-b border-outline-variant/10">
-                  <tr className="uppercase tracking-widest text-[9px] font-black text-stone-400">
-                    <th className="p-6">Identity</th>
-                    <th className="p-6">Ref-ID</th>
-                    <th className="p-6">Badge</th>
-                    <th className="p-6">Status</th>
-                    <th className="p-6 text-right">Operation</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-outline-variant/5">
-                  {filteredInterns.map(i => (
-                    <tr key={i.id} className="hover:bg-surface-container-low/30 transition-colors group">
-                      <td className="p-6">
-                        <div className="flex items-center gap-4">
-                          <img src={i.avatar_url || 'https://via.placeholder.com/40'} className="w-10 h-10 rounded-sm object-cover grayscale group-hover:grayscale-0 transition-all duration-500 border border-stone-100" />
-                          <div>
-                            <p className="text-sm font-bold text-primary">{i.full_name}</p>
-                            <p className="text-[10px] text-stone-400 uppercase font-black">{i.role}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-6 font-mono text-xs text-emerald-800 font-bold tracking-tighter">{i.verification_id}</td>
-                      <td className="p-6">
-                        <span className="text-[9px] font-black uppercase text-stone-500 border border-stone-200 px-2 py-0.5 rounded-sm">{i.performance_badge}</span>
-                      </td>
-                      <td className="p-6">
-                        <button onClick={() => handleToggleStatus(i.id, i.status)} className={`px-3 py-1 text-[9px] font-black uppercase rounded-sm transition-all ${i.status === 'Active' ? 'bg-emerald-50 text-emerald-700' : 'bg-stone-100 text-stone-400'}`}>{i.status}</button>
-                      </td>
-                      <td className="p-6 text-right space-x-4">
-                        <button onClick={() => { navigator.clipboard.writeText(i.verification_id); alert('Reference ID Copied'); }} className="material-symbols-outlined text-stone-300 hover:text-emerald-600 transition-colors">content_copy</button>
-                        <button onClick={() => handleDelete(i.id)} className="material-symbols-outlined text-stone-300 hover:text-red-500 transition-colors">delete</button>
-                      </td>
+               {/* RECENTLY CHANGED: Added overflow-x-auto to make the table scrollable on small screens */}
+              <div className="overflow-x-auto w-full">
+                <table className="w-full text-left min-w-[800px]">
+                  <thead className="bg-surface-container-low border-b border-outline-variant/10">
+                    <tr className="uppercase tracking-widest text-[9px] font-black text-stone-400">
+                      <th className="p-4 md:p-6">Identity</th>
+                      <th className="p-4 md:p-6">Ref-ID</th>
+                      <th className="p-4 md:p-6">Badge</th>
+                      <th className="p-4 md:p-6">Status</th>
+                      <th className="p-4 md:p-6 text-right">Operation</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-outline-variant/5">
+                    {filteredInterns.map(i => (
+                      <tr key={i.id} className="hover:bg-surface-container-low/30 transition-colors group">
+                        <td className="p-4 md:p-6">
+                          <div className="flex items-center gap-4">
+                            <img src={i.avatar_url || 'https://via.placeholder.com/40'} className="w-8 h-8 md:w-10 md:h-10 rounded-sm object-cover grayscale group-hover:grayscale-0 transition-all duration-500 border border-stone-100" />
+                            <div>
+                              <p className="text-xs md:text-sm font-bold text-primary">{i.full_name}</p>
+                              <p className="text-[9px] md:text-[10px] text-stone-400 uppercase font-black">{i.role}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-4 md:p-6 font-mono text-[10px] md:text-xs text-emerald-800 font-bold tracking-tighter">{i.verification_id}</td>
+                        <td className="p-4 md:p-6">
+                          <span className="text-[8px] md:text-[9px] font-black uppercase text-stone-500 border border-stone-200 px-2 py-0.5 rounded-sm whitespace-nowrap">{i.performance_badge}</span>
+                        </td>
+                        <td className="p-4 md:p-6">
+                          <button onClick={() => handleToggleStatus(i.id, i.status)} className={`px-2 py-1 md:px-3 md:py-1 text-[8px] md:text-[9px] font-black uppercase rounded-sm transition-all ${i.status === 'Active' ? 'bg-emerald-50 text-emerald-700' : 'bg-stone-100 text-stone-400'}`}>{i.status}</button>
+                        </td>
+                        <td className="p-4 md:p-6 text-right space-x-2 md:space-x-4">
+                          <button onClick={() => { navigator.clipboard.writeText(i.verification_id); alert('Reference ID Copied'); }} className="material-symbols-outlined text-stone-300 hover:text-emerald-600 transition-colors text-sm md:text-base">content_copy</button>
+                          <button onClick={() => handleDelete(i.id)} className="material-symbols-outlined text-stone-300 hover:text-red-500 transition-colors text-sm md:text-base">delete</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
 
         {activeTab === 'issue' && (
-          <div className="max-w-4xl animate-in slide-in-from-right-8 duration-700">
-            <div className="bg-surface-container-lowest p-12 rounded-sm border border-outline-variant/10 shadow-2xl">
-              <form onSubmit={handleIssue} className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div className="max-w-4xl animate-in slide-in-from-right-8 duration-700 w-full">
+            <div className="bg-surface-container-lowest p-6 md:p-12 rounded-sm border border-outline-variant/10 shadow-2xl">
+              <form onSubmit={handleIssue} className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
                 <div className="space-y-1">
-                  <label className="uppercase tracking-[0.2em] text-[10px] font-black text-primary block">Full Legal Name</label>
-                  <input required className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-base font-bold" value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} />
+                  <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Full Legal Name</label>
+                  <input required className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-sm md:text-base font-bold" value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} />
                 </div>
                 
                 <div className="space-y-1">
-                  <label className="uppercase tracking-[0.2em] text-[10px] font-black text-primary block">Identity Capture (400px optimized)</label>
-                  <div className="flex items-center gap-4 py-3">
-                     <input type="file" accept="image/*" onChange={handleImageUpload} className="text-[9px] font-black uppercase text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:bg-stone-900 file:text-white hover:file:bg-emerald-600 cursor-pointer" />
+                  <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Identity Capture</label>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 py-3">
+                     <input type="file" accept="image/*" onChange={handleImageUpload} className="text-[8px] md:text-[9px] font-black uppercase text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:bg-stone-900 file:text-white hover:file:bg-emerald-600 cursor-pointer w-full sm:w-auto" />
                      {uploading && <span className="text-[9px] font-black text-emerald-600 animate-pulse uppercase">Scaling...</span>}
                      {formData.avatar_url && <span className="material-symbols-outlined text-emerald-500">verified_user</span>}
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="uppercase tracking-[0.2em] text-[10px] font-black text-primary block">Role Authorization</label>
-                  <select className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-sm font-bold uppercase" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}>
+                  <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Role Authorization</label>
+                  <select className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-xs md:text-sm font-bold uppercase" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}>
                     <option value="Software Engineering Intern">Engineering (DEV)</option>
                     <option value="UI/UX Design Intern">Design (DSGN)</option>
                     <option value="Marketing Intern">Marketing (MKT)</option>
@@ -316,8 +344,8 @@ const SecretPanel = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="uppercase tracking-[0.2em] text-[10px] font-black text-primary block">Initial Status</label>
-                  <select className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-sm font-bold uppercase" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}>
+                  <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Initial Status</label>
+                  <select className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-xs md:text-sm font-bold uppercase" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}>
                     <option value="Active">Active</option>
                     <option value="Completed">Completed</option>
                     <option value="Extended">Extended</option>
@@ -325,35 +353,35 @@ const SecretPanel = () => {
                 </div>
 
                 {/* Skill Matrix System */}
-                <div className="md:col-span-2 space-y-6 bg-stone-50 p-8 border border-outline-variant/10">
-                  <label className="uppercase tracking-[0.3em] text-[10px] font-black text-primary block">Skill Matrix Selection ({formData.skills.length}/10)</label>
+                <div className="md:col-span-2 space-y-4 md:space-y-6 bg-stone-50 p-4 md:p-8 border border-outline-variant/10">
+                  <label className="uppercase tracking-[0.3em] text-[9px] md:text-[10px] font-black text-primary block">Skill Matrix Selection ({formData.skills.length}/10)</label>
                   <div className="flex flex-wrap gap-2">
                     {PREDEFINED_SKILLS.map(s => (
-                      <button type="button" key={s} onClick={() => toggleSkill(s)} className={`px-4 py-2 text-[9px] font-black uppercase border transition-all ${formData.skills.includes(s) ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg' : 'bg-white border-stone-200 text-stone-400 hover:border-emerald-600'}`}>{s}</button>
+                      <button type="button" key={s} onClick={() => toggleSkill(s)} className={`px-3 py-2 md:px-4 md:py-2 text-[8px] md:text-[9px] font-black uppercase border transition-all ${formData.skills.includes(s) ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg' : 'bg-white border-stone-200 text-stone-400 hover:border-emerald-600'}`}>{s}</button>
                     ))}
                   </div>
                   <div className="relative">
-                    <input type="text" placeholder="DEPLOY CUSTOM SKILL TAG + ENTER..." className="w-full bg-transparent border-0 border-b border-stone-300 py-3 text-xs font-bold outline-none focus:border-emerald-600" value={customSkill} onChange={(e) => setCustomSkill(e.target.value)} onKeyDown={addCustomSkill} disabled={formData.skills.length >= 10} />
+                    <input type="text" placeholder="DEPLOY CUSTOM SKILL TAG + ENTER..." className="w-full bg-transparent border-0 border-b border-stone-300 py-3 text-[10px] md:text-xs font-bold outline-none focus:border-emerald-600" value={customSkill} onChange={(e) => setCustomSkill(e.target.value)} onKeyDown={addCustomSkill} disabled={formData.skills.length >= 10} />
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {formData.skills.map(s => (
-                      <div key={s} className="bg-stone-900 text-white px-3 py-1 text-[9px] font-black uppercase flex items-center gap-2">
-                        {s} <span onClick={() => toggleSkill(s)} className="material-symbols-outlined text-[12px] cursor-pointer hover:text-red-400">close</span>
+                      <div key={s} className="bg-stone-900 text-white px-2 py-1 md:px-3 md:py-1 text-[8px] md:text-[9px] font-black uppercase flex items-center gap-1 md:gap-2">
+                        {s} <span onClick={() => toggleSkill(s)} className="material-symbols-outlined text-[10px] md:text-[12px] cursor-pointer hover:text-red-400">close</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 <div className="md:col-span-2 space-y-1">
-                  <label className="uppercase tracking-[0.2em] text-[10px] font-black text-primary block">Architectural Summary</label>
-                  <textarea rows="4" className="w-full border border-outline-variant/20 bg-white p-4 focus:ring-0 focus:border-tertiary text-sm resize-none" value={formData.summary} onChange={e => setFormData({...formData, summary: e.target.value})} />
+                  <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Architectural Summary</label>
+                  <textarea rows="4" className="w-full border border-outline-variant/20 bg-white p-3 md:p-4 focus:ring-0 focus:border-tertiary text-xs md:text-sm resize-none" value={formData.summary} onChange={e => setFormData({...formData, summary: e.target.value})} />
                 </div>
 
-                <button disabled={uploading} className="md:col-span-2 bg-primary text-on-primary py-6 font-headline font-bold text-xs uppercase tracking-[0.4em] hover:bg-emerald-800 transition-all flex items-center justify-center gap-4 shadow-2xl active:scale-[0.98] disabled:opacity-50">
+                <button disabled={uploading} className="md:col-span-2 bg-primary text-on-primary py-4 md:py-6 font-headline font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] md:tracking-[0.4em] hover:bg-emerald-800 transition-all flex items-center justify-center gap-2 md:gap-4 shadow-2xl active:scale-[0.98] disabled:opacity-50">
                   Deploy Identity Certificate
-                  <span className="material-symbols-outlined">verified</span>
+                  <span className="material-symbols-outlined text-sm md:text-base">verified</span>
                 </button>
-                {msg.text && <p className={`md:col-span-2 text-center text-[10px] font-black uppercase tracking-[0.2em] ${msg.type === 'error' ? 'text-red-500' : 'text-emerald-600'}`}>{msg.text}</p>}
+                {msg.text && <p className={`md:col-span-2 text-center text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] ${msg.type === 'error' ? 'text-red-500' : 'text-emerald-600'}`}>{msg.text}</p>}
               </form>
             </div>
           </div>
