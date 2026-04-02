@@ -8,7 +8,7 @@ const PREDEFINED_SKILLS = [
 ];
 
 const defaultFormState = {
-  full_name: '', role: 'Software Engineering Intern', duration: '3 Months',
+  full_name: '', role: 'Automation Developer Intern', duration: '3 Months',
   performance_badge: '', avatar_url: '', certificate_url: '', hub_location: 'Remote',
   summary: '', skills: [], status: 'Active'
 };
@@ -148,7 +148,7 @@ const CertificateForm = ({ initialData, onSuccess, onCancel }) => {
           <div className="space-y-1">
             <label className="uppercase tracking-[0.2em] text-[9px] md:text-[10px] font-black text-primary block">Role Authorization</label>
             <select className="w-full border-0 border-b border-outline-variant/40 bg-transparent py-3 focus:ring-0 focus:border-tertiary text-xs md:text-sm font-bold uppercase" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}>
-              <option value="Software Engineering Intern">Engineering (DEV)</option>
+              <option value="Automation Developer Intern">Engineering (DEV)</option>
               <option value="UI/UX Design Intern">Design (DSGN)</option>
               <option value="Marketing Intern">Marketing (MKT)</option>
               <option value="HR Intern">Human Resources (HR)</option>
