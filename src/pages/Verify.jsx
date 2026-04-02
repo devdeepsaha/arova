@@ -180,9 +180,6 @@ const Verify = () => {
               </button>
             )}
             
-            <a href="mailto:careers@arova.in" className="px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] uppercase tracking-[0.2em] rounded-xl transition-all shadow-lg shadow-emerald-600/20 active:scale-95 text-center">
-              Confirm for HR
-            </a>
           </div>
         </section>
       )}
