@@ -31,7 +31,6 @@ const IdentityMatrix = ({ interns, refreshData, onEdit }) => {
 
   return (
     <div className="animate-in fade-in duration-1000 w-full">
-      {/* Stats Bento Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
         {[
           { l: 'Total', v: stats.total, c: 'text-primary' },
@@ -46,7 +45,6 @@ const IdentityMatrix = ({ interns, refreshData, onEdit }) => {
         ))}
       </div>
 
-      {/* Matrix Table */}
       <div className="bg-surface-container-lowest rounded-sm border border-outline-variant/10 shadow-2xl w-full">
         <div className="p-4 md:p-6 border-b border-outline-variant/10 flex gap-4 w-full">
           <span className="material-symbols-outlined text-stone-300">search</span>
@@ -68,7 +66,11 @@ const IdentityMatrix = ({ interns, refreshData, onEdit }) => {
                 <tr key={i.id} className="hover:bg-surface-container-low/30 transition-colors group">
                   <td className="p-4 md:p-6">
                     <div className="flex items-center gap-4">
-                      <img src={i.avatar_url || 'https://via.placeholder.com/40'} className="w-8 h-8 md:w-10 md:h-10 rounded-sm object-cover grayscale group-hover:grayscale-0 transition-all duration-500 border border-stone-100" />
+                      <img 
+                        // RECENTLY CHANGED: Updated default fallback profile picture for table view
+                        src={i.avatar_url || 'https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg'} 
+                        className="w-8 h-8 md:w-10 md:h-10 rounded-sm object-cover grayscale group-hover:grayscale-0 transition-all duration-500 border border-stone-100 bg-white" 
+                      />
                       <div>
                         <p className="text-xs md:text-sm font-bold text-primary">{i.full_name}</p>
                         <p className="text-[9px] md:text-[10px] text-stone-400 uppercase font-black">{i.role}</p>

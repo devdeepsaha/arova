@@ -31,22 +31,20 @@ const Verify = () => {
     <main className="relative pt-24 md:pt-32 pb-24 px-4 md:px-12 min-h-screen flex flex-col items-center">
       <div className="absolute inset-0 blueprint-grid pointer-events-none opacity-[0.03]"></div>
       
-      {/* Search Section - REDESIGNED FOR PREMIUM LOOK */}
-      <section className="w-full max-w-3xl text-center z-10 mb-12 md:mb-16">
+      <section className="w-full max-w-3xl text-center z-10 mb-12 md:mb-20">
         <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tighter text-stone-900 mb-4 uppercase">Identity Verification</h1>
-        <p className="text-stone-500 mb-8 md:mb-10 max-w-md mx-auto leading-relaxed text-xs md:text-sm font-medium uppercase tracking-widest px-4">
+        <p className="text-stone-500 mb-8 md:mb-12 max-w-md mx-auto leading-relaxed text-xs md:text-sm font-medium uppercase tracking-widest px-4">
           Validate professional credentials issued by Arova Technologies.
         </p>
         
-        <div className="max-w-xl mx-auto relative px-2">
-          <label className="block text-left font-label text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold mb-3 ml-2">
-            Credential Reference ID
+        <div className="max-w-2xl mx-auto w-full px-2">
+          <label className="block text-left font-label text-[10px] uppercase tracking-[0.3em] text-emerald-600 font-black mb-3 ml-2 md:ml-4">
+            Credential Reference
           </label>
           
-          {/* Unified Pill Container */}
-          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-0 bg-white border-2 border-stone-100 focus-within:border-emerald-500 rounded-xl p-2 transition-all duration-300 shadow-xl shadow-stone-200/50">
+          <div className="flex flex-col md:flex-row items-stretch w-full bg-white rounded-xl md:rounded-full border-2 border-stone-200 focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-500/10 transition-all duration-300 shadow-2xl shadow-stone-200/50 overflow-hidden">
             <input 
-              className="w-full bg-transparent border-none focus:ring-0 focus:outline-none py-4 px-4 text-xl md:text-2xl font-mono placeholder:text-stone-300 uppercase tracking-tighter text-stone-900" 
+              className="flex-grow bg-transparent border-none py-5 md:py-6 px-6 md:px-8 text-xl md:text-2xl font-mono focus:ring-0 outline-none placeholder:text-stone-300 uppercase tracking-tighter text-stone-900 w-full" 
               placeholder="ARV-DEV-XXXXXX-XX" 
               value={searchId}
               onChange={(e) => setSearchId(e.target.value)}
@@ -55,22 +53,20 @@ const Verify = () => {
             <button 
               onClick={handleVerify}
               disabled={loading}
-              className="w-full sm:w-auto bg-stone-900 hover:bg-emerald-600 text-white font-bold px-8 py-4 rounded-lg transition-all duration-300 active:scale-95 flex items-center justify-center gap-3 uppercase text-xs tracking-widest disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full md:w-auto bg-stone-900 hover:bg-emerald-600 text-white font-bold py-5 md:py-6 px-10 md:px-12 transition-colors duration-300 flex items-center justify-center gap-3 uppercase text-xs tracking-widest flex-shrink-0 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               <span>{loading ? 'Validating' : 'Verify'}</span>
               <span className="material-symbols-outlined text-sm">{loading ? 'sync' : 'verified'}</span>
             </button>
           </div>
-          {error && <p className="text-red-500 text-[10px] mt-4 text-center sm:text-left font-black uppercase tracking-widest ml-2 animate-pulse">{error}</p>}
+          {error && <p className="text-red-500 text-[10px] mt-4 text-center md:text-left font-black uppercase tracking-widest ml-2 md:ml-4 animate-pulse">{error}</p>}
         </div>
       </section>
 
-      {/* Result View */}
       {intern && (
         <section className="w-full max-w-4xl z-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
           <div className="bg-white rounded-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden border border-stone-100">
             
-            {/* Top Identity Block */}
             <div className="px-6 md:px-12 py-10 md:py-16 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 bg-gradient-to-br from-white to-stone-50/50">
               <div className="md:col-span-8 flex flex-col justify-between">
                 <div>
@@ -88,7 +84,6 @@ const Verify = () => {
                     <span className="font-headline text-base md:text-lg font-bold text-stone-800 capitalize">{intern.duration}</span>
                   </div>
                   
-                  {/* CONDITIONAL: Shows only if admin added a badge */}
                   {intern.performance_badge && intern.performance_badge.trim() !== '' && (
                     <div>
                       <span className="block font-label text-[10px] uppercase tracking-[0.3em] text-stone-400 font-bold mb-2">Performance</span>
@@ -104,9 +99,10 @@ const Verify = () => {
               <div className="md:col-span-4 flex flex-col items-center md:items-end justify-between">
                 <div className="w-40 h-48 md:w-52 md:h-64 bg-stone-100 rounded-2xl overflow-hidden border-4 border-white shadow-xl grayscale hover:grayscale-0 transition-all duration-700">
                   <img 
-                    src={intern.avatar_url || 'https://via.placeholder.com/400x500?text=No+Image'} 
+                    // RECENTLY CHANGED: Updated default fallback profile picture for verification view
+                    src={intern.avatar_url || 'https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg'} 
                     alt="Authorized Personnel" 
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-cover bg-white" 
                   />
                 </div>
                 <div className="mt-8 text-center md:text-right">
@@ -116,7 +112,6 @@ const Verify = () => {
               </div>
             </div>
 
-            {/* Skills & Contribution */}
             <div className="bg-stone-900 px-6 md:px-12 py-10 md:py-14">
               <h3 className="font-label text-[10px] uppercase tracking-[0.4em] text-emerald-500 font-black mb-8 text-center md:text-left">Skill Matrix & Competency</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
@@ -133,7 +128,6 @@ const Verify = () => {
               </div>
             </div>
 
-            {/* Footer Metadata */}
             <div className="bg-white px-6 md:px-12 py-8 flex flex-col md:flex-row justify-between items-center gap-6 border-t border-stone-100 text-center md:text-left">
               <div className="flex flex-col md:flex-row items-center gap-4">
                 <div className="w-12 h-12 flex items-center justify-center bg-stone-900 rounded-xl text-emerald-400">
@@ -161,7 +155,6 @@ const Verify = () => {
             </div>
           </div>
 
-          {/* Action Row - DYNAMIC DOWNLOAD BUTTON */}
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             {intern.certificate_url ? (
               <a 
@@ -180,6 +173,7 @@ const Verify = () => {
               </button>
             )}
             
+
           </div>
         </section>
       )}
